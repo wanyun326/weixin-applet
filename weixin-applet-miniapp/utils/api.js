@@ -22,6 +22,9 @@ function processVoice(filePath, effect) {
       formData: {
         effect: effect
       },
+      header: {
+        'X-Auth-Token': app.globalData.authToken
+      },
       success(res) {
         wx.hideLoading();
 
