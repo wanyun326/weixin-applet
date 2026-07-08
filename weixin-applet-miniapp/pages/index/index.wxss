@@ -1,0 +1,318 @@
+/* pages/index/index.wxss */
+
+.container {
+  min-height: 100vh;
+  padding: 40rpx 30rpx;
+  background: linear-gradient(180deg, #6C5CE7 0%, #A29BFE 30%, #F8F9FE 60%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ===== 顶部标题 ===== */
+.header {
+  text-align: center;
+  margin-bottom: 40rpx;
+  padding-top: 20rpx;
+}
+
+.title {
+  font-size: 56rpx;
+  font-weight: bold;
+  color: #fff;
+  display: block;
+  margin-bottom: 10rpx;
+}
+
+.subtitle {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* ===== 音效选择区域 ===== */
+.effect-section {
+  width: 100%;
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 30rpx;
+  margin-bottom: 40rpx;
+  box-shadow: 0 8rpx 30rpx rgba(108, 92, 231, 0.15);
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20rpx;
+  display: block;
+}
+
+.effect-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20rpx;
+}
+
+.effect-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20rpx 10rpx;
+  border-radius: 16rpx;
+  background: #F8F9FE;
+  transition: all 0.3s ease;
+  border: 3rpx solid transparent;
+}
+
+.effect-item:active {
+  transform: scale(0.95);
+}
+
+.effect-active {
+  background: linear-gradient(135deg, #6C5CE7, #A29BFE);
+  border-color: #6C5CE7;
+  box-shadow: 0 4rpx 16rpx rgba(108, 92, 231, 0.4);
+}
+
+.effect-active .effect-name {
+  color: #fff;
+}
+
+.effect-icon {
+  font-size: 48rpx;
+  margin-bottom: 8rpx;
+}
+
+.effect-name {
+  font-size: 24rpx;
+  color: #666;
+}
+
+/* ===== 录音状态区域 ===== */
+.status-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 40rpx;
+  min-height: 160rpx;
+  justify-content: center;
+}
+
+.recording-animation {
+  position: relative;
+  width: 120rpx;
+  height: 120rpx;
+  margin-bottom: 20rpx;
+}
+
+.wave {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 3rpx solid rgba(255, 107, 107, 0.6);
+  animation: wave-animation 1.5s ease-out infinite;
+}
+
+.wave1 {
+  width: 60rpx;
+  height: 60rpx;
+  animation-delay: 0s;
+}
+
+.wave2 {
+  width: 90rpx;
+  height: 90rpx;
+  animation-delay: 0.3s;
+}
+
+.wave3 {
+  width: 120rpx;
+  height: 120rpx;
+  animation-delay: 0.6s;
+}
+
+@keyframes wave-animation {
+  0% {
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.5);
+    opacity: 0;
+  }
+}
+
+.status-text {
+  font-size: 28rpx;
+  color: #fff;
+  text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.1);
+}
+
+.duration {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #FF6B6B;
+  margin-top: 10rpx;
+}
+
+/* ===== 录音按钮 ===== */
+.record-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 40rpx;
+}
+
+.record-btn {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FF6B6B, #FF8E8E);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 30rpx rgba(255, 107, 107, 0.4);
+  transition: all 0.2s ease;
+}
+
+.record-btn:active {
+  transform: scale(0.9);
+}
+
+.record-btn.recording {
+  animation: recording-pulse 1s ease-in-out infinite;
+  box-shadow: 0 8rpx 40rpx rgba(255, 107, 107, 0.6);
+}
+
+@keyframes recording-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+.record-btn-inner {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.record-icon {
+  font-size: 56rpx;
+}
+
+.record-hint {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: 16rpx;
+}
+
+/* ===== 操作按钮区域 ===== */
+.action-area {
+  display: flex;
+  justify-content: center;
+  gap: 30rpx;
+  width: 100%;
+  margin-bottom: 40rpx;
+}
+
+.action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24rpx 32rpx;
+  border-radius: 20rpx;
+  background: #fff;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+  min-width: 140rpx;
+}
+
+.action-btn:active {
+  transform: scale(0.95);
+}
+
+.action-btn.disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.play-btn {
+  background: linear-gradient(135deg, #00B894, #55EFC4);
+}
+
+.play-btn.playing {
+  background: linear-gradient(135deg, #FDCB6E, #F9CA24);
+}
+
+.transform-btn {
+  background: linear-gradient(135deg, #6C5CE7, #A29BFE);
+}
+
+.reset-btn {
+  background: linear-gradient(135deg, #636E72, #B2BEC3);
+}
+
+.action-icon {
+  font-size: 40rpx;
+  margin-bottom: 8rpx;
+}
+
+.action-text {
+  font-size: 22rpx;
+  color: #fff;
+  font-weight: 500;
+}
+
+/* ===== 变声结果区域 ===== */
+.result-area {
+  width: 100%;
+  margin-bottom: 40rpx;
+}
+
+.result-card {
+  background: linear-gradient(135deg, #6C5CE7, #A29BFE);
+  border-radius: 24rpx;
+  padding: 40rpx;
+  text-align: center;
+  box-shadow: 0 8rpx 30rpx rgba(108, 92, 231, 0.3);
+}
+
+.result-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #fff;
+  display: block;
+  margin-bottom: 12rpx;
+}
+
+.result-effect {
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.8);
+  display: block;
+  margin-bottom: 30rpx;
+}
+
+.result-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.result-actions .action-btn {
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.2);
+}
+
+/* ===== 提示区域 ===== */
+.tip-area {
+  margin-top: auto;
+  padding: 20rpx;
+}
+
+.tip-text {
+  font-size: 24rpx;
+  color: #999;
+}

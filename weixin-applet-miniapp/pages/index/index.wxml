@@ -1,0 +1,104 @@
+<!-- pages/index/index.wxml -->
+<view class="container">
+  <!-- 顶部标题区域 -->
+  <view class="header">
+    <text class="title">🎤 变声器</text>
+    <text class="subtitle">录一段话，换个声音玩玩~</text>
+  </view>
+
+  <!-- 音效选择区域 -->
+  <view class="effect-section">
+    <text class="section-title">选择音效</text>
+    <view class="effect-grid">
+      <view
+        wx:for="{{effects}}"
+        wx:key="key"
+        class="effect-item {{selectedEffect === item.key ? 'effect-active' : ''}}"
+        bindtap="onSelectEffect"
+        data-key="{{item.key}}"
+      >
+        <text class="effect-icon">{{item.icon}}</text>
+        <text class="effect-name">{{item.name}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 录音状态显示 -->
+  <view class="status-area">
+    <!-- 录音中动画 -->
+    <view wx:if="{{isRecording}}" class="recording-animation">
+      <view class="wave wave1"></view>
+      <view class="wave wave2"></view>
+      <view class="wave wave3"></view>
+    </view>
+    <!-- 状态文字 -->
+    <text class="status-text">
+      {{isRecording ? '正在录音...' : (recordedFilePath ? '录音完成！' : '按下按钮开始录音')}}
+    </text>
+    <!-- 录音时长 -->
+    <text wx:if="{{isRecording}}" class="duration">{{recordingDuration}}s</text>
+  </view>
+
+  <!-- 录音按钮 -->
+  <view class="record-area">
+    <view
+      class="record-btn {{isRecording ? 'recording' : ''}}"
+      bindtouchstart="onRecordStart"
+      bindtouchend="onRecordEnd"
+      bindtouchcancel="onRecordEnd"
+    >
+      <view class="record-btn-inner">
+        <text class="record-icon">🎙️</text>
+      </view>
+    </view>
+    <text class="record-hint">{{isRecording ? '松开结束录音' : '长按开始录音'}}</text>
+  </view>
+
+  <!-- 操作按钮区域 -->
+  <view class="action-area" wx:if="{{recordedFilePath}}">
+    <!-- 播放按钮 -->
+    <view class="action-btn play-btn" bindtap="onPlay" wx:if="{{!isPlaying}}">
+      <text class="action-icon">▶</text>
+      <text class="action-text">播放原声</text>
+    </view>
+    <view class="action-btn play-btn playing" bindtap="onStopPlay" wx:if="{{isPlaying}}">
+      <text class="action-icon">⏸</text>
+      <text class="action-text">停止播放</text>
+    </view>
+
+    <!-- 变声按钮 -->
+    <view class="action-btn transform-btn {{isProcessing ? 'disabled' : ''}}" bindtap="onTransform">
+      <text class="action-icon">{{isProcessing ? '⏳' : '✨'}}</text>
+      <text class="action-text">{{isProcessing ? '处理中...' : '开始变声'}}</text>
+    </view>
+
+    <!-- 重置按钮 -->
+    <view class="action-btn reset-btn" bindtap="onReset">
+      <text class="action-icon">🔄</text>
+      <text class="action-text">重新录音</text>
+    </view>
+  </view>
+
+  <!-- 变声结果播放区域 -->
+  <view class="result-area" wx:if="{{processedFilePath}}">
+    <view class="result-card">
+      <text class="result-title">🎵 变声完成</text>
+      <text class="result-effect">当前音效: {{selectedEffectName}}</text>
+      <view class="result-actions">
+        <view class="action-btn play-btn" bindtap="onPlayProcessed" wx:if="{{!isPlayingProcessed}}">
+          <text class="action-icon">▶</text>
+          <text class="action-text">播放变声</text>
+        </view>
+        <view class="action-btn play-btn playing" bindtap="onStopPlayProcessed" wx:if="{{isPlayingProcessed}}">
+          <text class="action-icon">⏸</text>
+          <text class="action-text">停止播放</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 提示信息 -->
+  <view class="tip-area">
+    <text class="tip-text">💡 提示：录音最长60秒，支持 MP3 格式</text>
+  </view>
+</view>

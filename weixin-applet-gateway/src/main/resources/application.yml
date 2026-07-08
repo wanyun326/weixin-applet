@@ -1,0 +1,35 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: weixin-applet-gateway
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+        namespace: public
+    gateway:
+      # 路由配置
+      routes:
+        - id: voice-service
+          uri: lb://weixin-applet-voice
+          predicates:
+            - Path=/api/voice/**
+          filters:
+            - StripPrefix=0
+      # 全局跨域（配合 CorsConfig 使用）
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOriginPatterns: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+            allowCredentials: true
+            maxAge: 3600
+
+# 日志配置
+logging:
+  level:
+    com.wanyun.gateway: debug
+    org.springframework.cloud.gateway: debug
