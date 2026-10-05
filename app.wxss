@@ -1,0 +1,250 @@
+/* ==========================================================================
+   全局样式 · 家庭点菜小程序
+   配色：以暖橙为主色（有食欲），绿色为辅助色（完成/正向），浅灰底
+   ========================================================================== */
+
+page {
+  --primary: #FF7043;
+  --primary-deep: #F4511E;
+  --primary-soft: #FFE7DE;
+  --accent: #26A69A;
+  --accent-soft: #DFF3F0;
+  --pending: #FFB300;
+  --pending-soft: #FFF3D6;
+  --cooking: #FF7043;
+  --cooking-soft: #FFE7DE;
+  --done: #26A69A;
+  --done-soft: #DFF3F0;
+  --text: #2D2A26;
+  --text-2: #6B6F76;
+  --text-3: #9AA0A6;
+  --line: #EEF0F4;
+  --bg: #F5F6FA;
+  --card: #FFFFFF;
+  background-color: var(--bg);
+  color: var(--text);
+  font-size: 28rpx;
+  font-family: -apple-system, "PingFang SC", "Helvetica Neue", Helvetica, sans-serif;
+}
+
+view, text, button, input, textarea, image, scroll-view {
+  box-sizing: border-box;
+}
+
+/* ---- 通用布局 ---- */
+.page {
+  min-height: 100vh;
+  padding: 24rpx;
+  padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
+}
+
+.page--tab {
+  padding-bottom: calc(160rpx + env(safe-area-inset-bottom));
+}
+
+.row {
+  display: flex;
+  align-items: center;
+}
+
+.row-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-1 {
+  flex: 1;
+  min-width: 0;
+}
+
+.gap-8 { gap: 8rpx; }
+.gap-16 { gap: 16rpx; }
+.gap-24 { gap: 24rpx; }
+
+/* ---- 卡片 ---- */
+.card {
+  background: var(--card);
+  border-radius: 16rpx;
+  padding: 24rpx;
+  box-shadow: 0 4rpx 20rpx rgba(45, 42, 38, 0.05);
+}
+
+.card + .card {
+  margin-top: 20rpx;
+}
+
+/* ---- 文本 ---- */
+.title {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.subtitle {
+  font-size: 26rpx;
+  color: var(--text-2);
+}
+
+.muted {
+  color: var(--text-3);
+  font-size: 24rpx;
+}
+
+.ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--text);
+  margin: 8rpx 0 16rpx;
+}
+
+/* ---- 按钮 ---- */
+button::after {
+  border: none;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 80rpx;
+  padding: 0 32rpx;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+  line-height: 1;
+  background: #F0F1F5;
+  color: var(--text);
+  border: none;
+}
+
+.btn--primary {
+  background: linear-gradient(135deg, #FF8A5B, #FF7043);
+  color: #fff;
+}
+
+.btn--accent {
+  background: linear-gradient(135deg, #35C0B2, #26A69A);
+  color: #fff;
+}
+
+.btn--ghost {
+  background: #fff;
+  color: var(--text-2);
+  border: 1rpx solid var(--line);
+}
+
+.btn--danger {
+  background: #fff;
+  color: #E4572E;
+  border: 1rpx solid #FFD9CC;
+}
+
+.btn--block {
+  width: 100%;
+  display: flex;
+}
+
+.btn--sm {
+  height: 60rpx;
+  padding: 0 24rpx;
+  font-size: 24rpx;
+  border-radius: 30rpx;
+}
+
+.btn[disabled],
+.btn--disabled {
+  opacity: 0.5;
+}
+
+/* ---- 标签 / 徽标 ---- */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  height: 40rpx;
+  padding: 0 16rpx;
+  border-radius: 20rpx;
+  font-size: 22rpx;
+  background: #F0F1F5;
+  color: var(--text-2);
+}
+
+.tag--pending {
+  background: var(--pending-soft);
+  color: #B37700;
+}
+
+.tag--cooking {
+  background: var(--cooking-soft);
+  color: var(--primary-deep);
+}
+
+.tag--done {
+  background: var(--done-soft);
+  color: #1E7F76;
+}
+
+.tag--creator {
+  background: var(--primary-soft);
+  color: var(--primary-deep);
+}
+
+/* ---- 头像 ---- */
+.avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  background: #EDEFF3;
+  flex-shrink: 0;
+}
+
+.avatar--sm {
+  width: 56rpx;
+  height: 56rpx;
+}
+
+/* ---- 空状态 ---- */
+.empty {
+  padding: 120rpx 40rpx;
+  text-align: center;
+  color: var(--text-3);
+}
+
+.empty__emoji {
+  font-size: 96rpx;
+  display: block;
+  margin-bottom: 16rpx;
+}
+
+/* ---- 分割 ---- */
+.divider {
+  height: 1rpx;
+  background: var(--line);
+  margin: 20rpx 0;
+}
+
+/* ---- 底部安全区占位 ---- */
+.safe-bottom {
+  height: env(safe-area-inset-bottom);
+}
+
+/* 去掉默认 button 样式干扰 */
+.plain-btn {
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  line-height: normal;
+  font-size: inherit;
+  color: inherit;
+  text-align: inherit;
+}

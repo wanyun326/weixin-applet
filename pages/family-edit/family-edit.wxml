@@ -1,0 +1,63 @@
+<view class="page">
+  <view class="tabs">
+    <view
+      class="tabs__item {{tab === 'create' ? 'is-active' : ''}}"
+      data-tab="create"
+      bindtap="switchTab"
+    >创建家庭</view>
+    <view
+      class="tabs__item {{tab === 'join' ? 'is-active' : ''}}"
+      data-tab="join"
+      bindtap="switchTab"
+    >加入家庭</view>
+  </view>
+
+  <view class="card">
+    <!-- 资料区（首次进入需要填写） -->
+    <block wx:if="{{needProfile}}">
+      <view class="section-title">先完善你的资料</view>
+      <view class="profile-row">
+        <button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+          <image class="avatar" src="{{draftAvatar || '/images/default-avatar.png'}}" mode="aspectFill"></image>
+        </button>
+        <input
+          class="input flex-1"
+          type="nickname"
+          placeholder="请输入昵称"
+          value="{{draftNickname}}"
+          bindinput="onNicknameInput"
+        />
+      </view>
+      <view class="divider"></view>
+    </block>
+
+    <block wx:if="{{tab === 'create'}}">
+      <view class="section-title">家庭名称</view>
+      <input
+        class="input input--full"
+        placeholder="例如：幸福一家人"
+        maxlength="20"
+        value="{{name}}"
+        bindinput="onNameInput"
+      />
+      <view class="muted tip">创建后你会自动成为创建人，其他人可通过邀请码加入。</view>
+    </block>
+
+    <block wx:else>
+      <view class="section-title">邀请码</view>
+      <input
+        class="input input--full input--code"
+        placeholder="请输入 6 位邀请码"
+        maxlength="6"
+        value="{{inviteCode}}"
+        bindinput="onCodeInput"
+      />
+      <view class="muted tip">向家庭创建人或成员索要邀请码即可加入。</view>
+    </block>
+
+    <view
+      class="btn btn--primary btn--block submit {{submitting ? 'btn--disabled' : ''}}"
+      bindtap="onSubmit"
+    >{{submitting ? '处理中...' : (tab === 'create' ? '创建家庭' : '加入家庭')}}</view>
+  </view>
+</view>

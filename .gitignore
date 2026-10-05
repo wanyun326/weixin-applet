@@ -1,9 +1,3 @@
-# Maven
-target/
-*.jar
-*.war
-*.class
-
 # IDE
 .idea/
 *.iml
@@ -22,5 +16,13 @@ Thumbs.db
 # Temp files
 temp/
 
-# Node (小程序开发工具可能生成)
+# Node / 云函数依赖（上传部署时由微信开发者工具安装）
 node_modules/
+**/node_modules/
+
+# 微信开发者工具本地私有配置（含个人 appid / 编译设置）
+project.private.config.json
+
+# 云函数本地调试产物
+cloudfunctions/**/package-lock.json
+miniprogram_npm/

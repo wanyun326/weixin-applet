@@ -1,0 +1,122 @@
+<view class="page page--tab">
+  <!-- 未开启 -->
+  <view wx:if="{{!enabled && !loading}}" class="card empty-card">
+    <text class="empty__emoji">🥣</text>
+    <view class="empty-card__title">尚未开启辅食推荐</view>
+    <view class="muted">添加宝宝后会自动开启，也可在宝宝管理中开启</view>
+    <view class="btn btn--primary empty-card__btn" bindtap="goBabyManage">去添加宝宝</view>
+  </view>
+
+  <!-- 已开启但没有宝宝 -->
+  <view wx:elif="{{enabled && !loading && !babies.length}}" class="card empty-card">
+    <text class="empty__emoji">👶</text>
+    <view class="empty-card__title">还没有宝宝档案</view>
+    <view class="muted">添加宝宝后即可查看每日辅食推荐</view>
+    <view class="btn btn--primary empty-card__btn" bindtap="goBabyManage">添加宝宝</view>
+  </view>
+
+  <block wx:elif="{{enabled}}">
+    <!-- 宝宝选择器 -->
+    <view class="head">
+      <view class="flex-1">
+        <text class="head__title">今日辅食推荐</text>
+        <text class="muted head__date">{{dateText}}</text>
+      </view>
+      <picker wx:if="{{babies.length > 1}}" mode="selector" range="{{babyNames}}" value="{{babyIndex}}" bindchange="onSelectBaby">
+        <view class="head__picker">{{currentBaby.nickname}} ▾</view>
+      </picker>
+      <view wx:else class="head__baby">{{currentBaby.nickname}} · {{currentBaby.ageMonths}} 个月</view>
+    </view>
+
+    <!-- 推荐列表 -->
+    <view wx:for="{{recommendations}}" wx:key="category" class="card food">
+      <view class="food__head">
+        <text class="food__category">{{item.category}}</text>
+        <text class="food__change" data-category="{{item.category}}" bindtap="onChangeFood">换一道 ⟳</text>
+      </view>
+      <block wx:if="{{item.food}}">
+        <view class="row">
+          <image class="food__img" src="{{item.food.imageUrl}}" mode="aspectFill" lazy-load></image>
+          <view class="flex-1 food__info">
+            <text class="food__name">{{item.food.name}}</text>
+            <text class="tag">{{item.food.monthText}}</text>
+          </view>
+        </view>
+        <view class="food__block">
+          <text class="food__label">食材</text>
+          <text class="food__value">{{item.food.ingredients}}</text>
+        </view>
+        <view class="food__block">
+          <text class="food__label">做法</text>
+          <text class="food__value">{{item.food.steps}}</text>
+        </view>
+        <view class="food__block">
+          <text class="food__label">营养</text>
+          <text class="food__value">{{item.food.nutrition}}</text>
+        </view>
+      </block>
+      <view wx:else class="food__none">该月龄暂无适合的{{item.category}}辅食</view>
+    </view>
+
+    <!-- 自定义辅食 -->
+    <view class="section-title custom-title">家庭自定义辅食（{{customFoods.length}}）</view>
+    <view wx:if="{{customFoods.length}}">
+      <view wx:for="{{customFoods}}" wx:key="_id" class="card custom">
+        <view class="flex-1">
+          <view class="row gap-8">
+            <text class="food__name">{{item.name}}</text>
+            <text class="tag">{{item.category}}</text>
+          </view>
+          <view class="muted">{{item.monthText}}</view>
+        </view>
+        <view class="btn btn--sm btn--danger" data-index="{{index}}" bindtap="onDeleteFood">删除</view>
+      </view>
+    </view>
+
+    <view class="foot">
+      <view class="btn btn--ghost flex-1" bindtap="openForm">＋ 添加辅食</view>
+      <view class="btn btn--ghost flex-1" bindtap="goBabyManage">宝宝管理</view>
+    </view>
+  </block>
+
+  <!-- 添加辅食表单 -->
+  <view wx:if="{{showForm}}" class="mask" bindtap="closeForm">
+    <view class="sheet" catchtap="noop">
+      <view class="sheet__title">添加自定义辅食</view>
+      <view class="field">
+        <text class="field__label">名称</text>
+        <input class="field__input" data-field="name" placeholder="辅食名称" value="{{form.name}}" bindinput="onFormInput" />
+      </view>
+      <view class="field">
+        <text class="field__label">分类</text>
+        <picker mode="selector" range="{{categories}}" bindchange="onFormCategory">
+          <view class="field__picker">{{form.category}} ▾</view>
+        </picker>
+      </view>
+      <view class="field">
+        <text class="field__label">月龄范围</text>
+        <input class="field__input field__input--num" type="number" data-field="minMonth" value="{{form.minMonth}}" bindinput="onFormInput" />
+        <text class="field__sep">~</text>
+        <input class="field__input field__input--num" type="number" data-field="maxMonth" value="{{form.maxMonth}}" bindinput="onFormInput" />
+      </view>
+      <view class="field">
+        <text class="field__label">食材</text>
+        <input class="field__input" data-field="ingredientsText" placeholder="用逗号分隔" value="{{form.ingredientsText}}" bindinput="onFormInput" />
+      </view>
+      <view class="field">
+        <text class="field__label">做法</text>
+        <input class="field__input" data-field="stepsText" placeholder="每行一个步骤" value="{{form.stepsText}}" bindinput="onFormInput" />
+      </view>
+      <view class="field">
+        <text class="field__label">营养说明</text>
+        <input class="field__input" data-field="nutrition" placeholder="简单营养说明" value="{{form.nutrition}}" bindinput="onFormInput" />
+      </view>
+      <view class="sheet__actions">
+        <view class="btn btn--ghost flex-1" bindtap="closeForm">取消</view>
+        <view class="btn btn--primary flex-1 {{submitting ? 'btn--disabled' : ''}}" bindtap="onSubmit">
+          {{submitting ? '保存中...' : '保存'}}
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

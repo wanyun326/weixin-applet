@@ -1,0 +1,9 @@
+{
+  "name": "toggleBabyFood",
+  "version": "1.0.0",
+  "description": "开关家庭辅食推荐",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

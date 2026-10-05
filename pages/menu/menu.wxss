@@ -1,0 +1,143 @@
+.head {
+  display: flex;
+  align-items: center;
+  padding: 8rpx 8rpx 24rpx;
+}
+
+.head__family {
+  font-size: 36rpx;
+  font-weight: 700;
+}
+
+.head__meal {
+  margin-top: 6rpx;
+  font-size: 26rpx;
+  color: #6B6F76;
+}
+
+.head__history {
+  font-size: 26rpx;
+  color: #FF7043;
+  padding: 10rpx 24rpx;
+  border-radius: 28rpx;
+  background: #FFE7DE;
+}
+
+.start-card {
+  text-align: center;
+  padding: 56rpx 32rpx;
+}
+
+.start-card__title {
+  font-size: 34rpx;
+  font-weight: 600;
+  margin: 12rpx 0 8rpx;
+}
+
+.start-card__btn {
+  margin-top: 32rpx;
+}
+
+.group {
+  margin-bottom: 32rpx;
+}
+
+.group__title {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  padding: 0 8rpx 16rpx;
+}
+
+.group__count {
+  font-size: 24rpx;
+  color: #6B6F76;
+  background: #EDEFF3;
+  border-radius: 20rpx;
+  padding: 2rpx 16rpx;
+}
+
+.group__toggle {
+  margin-left: auto;
+  font-size: 24rpx;
+  color: #9AA0A6;
+  font-weight: 400;
+}
+
+.group__empty {
+  padding: 32rpx;
+  text-align: center;
+  color: #9AA0A6;
+  font-size: 26rpx;
+  background: #fff;
+  border-radius: 16rpx;
+}
+
+.dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+}
+
+.dot--pending { background: #FFB300; }
+.dot--cooking { background: #FF7043; }
+.dot--done { background: #26A69A; }
+
+.order {
+  display: flex;
+  align-items: center;
+}
+
+.order__img {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 16rpx;
+  background: #F0F1F5;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+}
+
+.order__name {
+  font-size: 32rpx;
+  font-weight: 600;
+}
+
+.order__qty {
+  font-size: 24rpx;
+  color: #F4511E;
+  background: #FFE7DE;
+  border-radius: 16rpx;
+  padding: 0 12rpx;
+}
+
+.order__actions {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 16rpx;
+}
+
+.order--done {
+  opacity: 0.72;
+}
+
+.order__check {
+  font-size: 44rpx;
+  color: #26A69A;
+  margin-left: 16rpx;
+}
+
+.footer {
+  display: flex;
+  gap: 20rpx;
+  margin-top: 16rpx;
+}
+
+.footer__logs {
+  flex: 1;
+}
+
+.footer__close {
+  flex: 1;
+}

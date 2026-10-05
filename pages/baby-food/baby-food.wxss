@@ -1,0 +1,186 @@
+.empty-card {
+  text-align: center;
+  padding: 64rpx 32rpx;
+}
+
+.empty-card__title {
+  font-size: 34rpx;
+  font-weight: 600;
+  margin: 12rpx 0 8rpx;
+}
+
+.empty-card__btn {
+  margin-top: 32rpx;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  padding: 8rpx 8rpx 20rpx;
+}
+
+.head__title {
+  font-size: 36rpx;
+  font-weight: 700;
+}
+
+.head__date {
+  display: block;
+  margin-top: 6rpx;
+}
+
+.head__picker,
+.head__baby {
+  font-size: 26rpx;
+  color: #F4511E;
+  background: #FFE7DE;
+  border-radius: 28rpx;
+  padding: 10rpx 24rpx;
+}
+
+.food__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+
+.food__category {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #F4511E;
+}
+
+.food__change {
+  font-size: 26rpx;
+  color: #26A69A;
+}
+
+.food__img {
+  width: 150rpx;
+  height: 150rpx;
+  border-radius: 16rpx;
+  background: #F0F1F5;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+}
+
+.food__info {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  align-items: flex-start;
+}
+
+.food__name {
+  font-size: 32rpx;
+  font-weight: 600;
+}
+
+.food__block {
+  margin-top: 16rpx;
+  display: flex;
+  gap: 12rpx;
+}
+
+.food__label {
+  flex-shrink: 0;
+  font-size: 24rpx;
+  color: #fff;
+  background: #26A69A;
+  border-radius: 8rpx;
+  padding: 2rpx 12rpx;
+  height: 40rpx;
+  line-height: 36rpx;
+}
+
+.food__value {
+  flex: 1;
+  font-size: 26rpx;
+  color: #6B6F76;
+  line-height: 1.5;
+}
+
+.food__none {
+  padding: 24rpx;
+  text-align: center;
+  color: #9AA0A6;
+  font-size: 26rpx;
+}
+
+.custom-title {
+  margin-top: 32rpx;
+}
+
+.custom {
+  display: flex;
+  align-items: center;
+}
+
+.foot {
+  display: flex;
+  gap: 20rpx;
+  margin-top: 32rpx;
+}
+
+.mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: flex-end;
+  z-index: 2000;
+}
+
+.sheet {
+  width: 100%;
+  max-height: 86vh;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 28rpx 28rpx 0 0;
+  padding: 32rpx;
+  padding-bottom: calc(32rpx + env(safe-area-inset-bottom));
+}
+
+.sheet__title {
+  text-align: center;
+  font-size: 32rpx;
+  font-weight: 600;
+  margin-bottom: 24rpx;
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  min-height: 92rpx;
+  border-bottom: 1rpx solid #EEF0F4;
+}
+
+.field__label {
+  width: 180rpx;
+  color: #6B6F76;
+  flex-shrink: 0;
+}
+
+.field__input {
+  flex: 1;
+}
+
+.field__input--num {
+  text-align: center;
+}
+
+.field__sep {
+  color: #9AA0A6;
+  padding: 0 12rpx;
+}
+
+.field__picker {
+  flex: 1;
+}
+
+.sheet__actions {
+  display: flex;
+  gap: 20rpx;
+  margin-top: 32rpx;
+}

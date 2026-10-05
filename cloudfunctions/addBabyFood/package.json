@@ -1,0 +1,9 @@
+{
+  "name": "addBabyFood",
+  "version": "1.0.0",
+  "description": "家庭自定义辅食增删改",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

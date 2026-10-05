@@ -1,0 +1,13 @@
+<view class="tabbar">
+  <view
+    wx:for="{{visibleList}}"
+    wx:key="pagePath"
+    class="tabbar__item {{selected === index ? 'is-active' : ''}}"
+    data-path="{{item.pagePath}}"
+    data-index="{{index}}"
+    bindtap="onTap"
+  >
+    <text class="tabbar__icon">{{item.icon}}</text>
+    <text class="tabbar__text">{{item.text}}</text>
+  </view>
+</view>

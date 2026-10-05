@@ -1,0 +1,76 @@
+<view class="page">
+  <!-- 用户资料 -->
+  <view class="card profile">
+    <block wx:if="{{!editingProfile}}">
+      <view class="row">
+        <image class="avatar" src="{{profile.avatar || '/images/default-avatar.png'}}" mode="aspectFill"></image>
+        <view class="flex-1 profile__info">
+          <view class="title">{{profile.nickname}}</view>
+          <view class="muted">点击右侧可修改资料</view>
+        </view>
+        <view class="btn btn--sm btn--ghost" bindtap="onEditProfile">修改</view>
+      </view>
+    </block>
+
+    <block wx:else>
+      <view class="title profile__title">完善你的资料</view>
+      <view class="muted">昵称与头像会展示给家庭成员</view>
+      <view class="profile__form">
+        <button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+          <image class="avatar" src="{{draftAvatar || '/images/default-avatar.png'}}" mode="aspectFill"></image>
+          <text class="avatar-btn__hint">选择头像</text>
+        </button>
+        <input
+          class="input"
+          type="nickname"
+          placeholder="请输入昵称"
+          value="{{draftNickname}}"
+          bindinput="onNicknameInput"
+        />
+      </view>
+      <view class="btn btn--primary btn--block {{saving ? 'btn--disabled' : ''}}" bindtap="onSaveProfile">
+        {{saving ? '保存中...' : '保存'}}
+      </view>
+    </block>
+  </view>
+
+  <!-- 家庭列表 -->
+  <view class="section-head">
+    <text class="section-title">我的家庭</text>
+    <text class="muted">{{families.length}} 个</text>
+  </view>
+
+  <view wx:if="{{loading}}" class="empty">
+    <text class="empty__emoji">⏳</text>
+    <text>加载中...</text>
+  </view>
+
+  <block wx:elif="{{families.length}}">
+    <view
+      wx:for="{{families}}"
+      wx:key="_id"
+      class="card family"
+      data-index="{{index}}"
+      bindtap="enterFamily"
+    >
+      <view class="family__badge">🏠</view>
+      <view class="flex-1">
+        <view class="row gap-8">
+          <text class="title">{{item.name}}</text>
+          <text wx:if="{{item.isCreator}}" class="tag tag--creator">创建人</text>
+        </view>
+        <view class="muted family__meta">{{item.memberCount}} 位成员 · {{item.createdAtText}} 创建</view>
+      </view>
+      <view class="family__arrow">›</view>
+    </view>
+  </block>
+
+  <view wx:else class="empty">
+    <text class="empty__emoji">🍚</text>
+    <text>还没有家庭，创建一个开始点菜吧</text>
+  </view>
+
+  <view class="btn btn--primary btn--block create-btn" bindtap="goFamilyEdit">
+    ＋ 创建 / 加入家庭
+  </view>
+</view>

@@ -1,0 +1,58 @@
+<view class="page page--tab">
+  <!-- 邀请区 -->
+  <view class="card invite">
+    <view class="invite__label">家庭邀请码</view>
+    <view class="invite__code" bindtap="copyCode">{{inviteCode}}</view>
+    <view class="muted invite__tip">点击邀请码可复制</view>
+    <button class="btn btn--primary btn--block invite__share" open-type="share">分享给微信好友</button>
+  </view>
+
+  <!-- 设置 -->
+  <view class="card setting">
+    <view class="row-between">
+      <view>
+        <view class="title setting__title">宝宝辅食推荐</view>
+        <view class="muted">开启后在底部导航显示「辅食」</view>
+      </view>
+      <switch checked="{{babyFoodEnabled}}" color="#FF7043" bindchange="onToggleBabyFood" />
+    </view>
+    <view class="divider"></view>
+    <view class="row-between" bindtap="goBabyManage">
+      <text>👶 宝宝管理</text>
+      <text class="setting__arrow">›</text>
+    </view>
+    <view class="divider"></view>
+    <view class="row-between" bindtap="goHistory">
+      <text>🗂️ 历史当餐</text>
+      <text class="setting__arrow">›</text>
+    </view>
+  </view>
+
+  <!-- 成员列表 -->
+  <view class="section-title member-title">成员（{{members.length}}）</view>
+  <view wx:if="{{loading}}" class="empty"><text class="empty__emoji">⏳</text><text>加载中...</text></view>
+  <block wx:else>
+    <view wx:for="{{members}}" wx:key="_id" class="card member">
+      <image class="avatar" src="{{item.avatar || '/images/default-avatar.png'}}" mode="aspectFill"></image>
+      <view class="flex-1 member__info">
+        <view class="row gap-8">
+          <text class="title">{{item.nickname}}</text>
+          <text wx:if="{{item.isCreator}}" class="tag tag--creator">创建人</text>
+          <text wx:if="{{item.isSelf}}" class="tag">我</text>
+        </view>
+        <view class="muted">{{item.joinedAtText}} 加入</view>
+      </view>
+      <view
+        wx:if="{{isCreator && !item.isCreator}}"
+        class="btn btn--sm btn--danger"
+        data-index="{{index}}"
+        bindtap="onRemove"
+      >移出家庭</view>
+      <view
+        wx:if="{{!isCreator && item.isSelf}}"
+        class="btn btn--sm btn--danger"
+        bindtap="onLeave"
+      >退出家庭</view>
+    </view>
+  </block>
+</view>

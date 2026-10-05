@@ -1,0 +1,52 @@
+.invite {
+  text-align: center;
+  padding: 40rpx 24rpx;
+}
+
+.invite__label {
+  font-size: 26rpx;
+  color: #6B6F76;
+}
+
+.invite__code {
+  font-size: 64rpx;
+  font-weight: 700;
+  letter-spacing: 10rpx;
+  color: #FF7043;
+  margin: 12rpx 0 8rpx;
+}
+
+.invite__tip {
+  margin-bottom: 28rpx;
+}
+
+.invite__share {
+  margin-top: 4rpx;
+}
+
+.setting__title {
+  margin-bottom: 6rpx;
+}
+
+.setting__arrow {
+  font-size: 40rpx;
+  color: #C7CCD4;
+}
+
+.member-title {
+  margin-top: 32rpx;
+}
+
+.member {
+  display: flex;
+  align-items: center;
+}
+
+.member__info {
+  margin-left: 20rpx;
+  gap: 8rpx;
+}
+
+.member__info .muted {
+  margin-top: 8rpx;
+}

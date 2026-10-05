@@ -1,0 +1,81 @@
+.baby {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.baby__avatar {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 50%;
+  background: #FFF3D6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48rpx;
+  margin-right: 8rpx;
+  flex-shrink: 0;
+}
+
+.baby__meta {
+  margin-top: 8rpx;
+}
+
+.add-btn {
+  margin-top: 40rpx;
+}
+
+.food-btn {
+  margin-top: 20rpx;
+}
+
+.mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: flex-end;
+  z-index: 2000;
+}
+
+.sheet {
+  width: 100%;
+  background: #fff;
+  border-radius: 28rpx 28rpx 0 0;
+  padding: 32rpx;
+  padding-bottom: calc(32rpx + env(safe-area-inset-bottom));
+}
+
+.sheet__title {
+  text-align: center;
+  font-size: 32rpx;
+  font-weight: 600;
+  margin-bottom: 28rpx;
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  min-height: 92rpx;
+  border-bottom: 1rpx solid #EEF0F4;
+}
+
+.field__label {
+  width: 160rpx;
+  color: #6B6F76;
+}
+
+.field__input {
+  flex: 1;
+}
+
+.field__picker {
+  flex: 1;
+  color: #2D2A26;
+}
+
+.sheet__actions {
+  display: flex;
+  gap: 20rpx;
+  margin-top: 32rpx;
+}

@@ -1,0 +1,100 @@
+<view class="page page--tab">
+  <view class="head">
+    <view class="flex-1">
+      <view class="head__family">{{familyName}}</view>
+      <view class="head__meal">{{hasMeal ? mealLabel : '暂无进行中的一餐'}}</view>
+    </view>
+    <text class="head__history" bindtap="goHistory">历史</text>
+  </view>
+
+  <view wx:if="{{!hasMeal && !loading}}" class="card start-card">
+    <text class="empty__emoji">🍳</text>
+    <view class="start-card__title">还没有进行中的一餐</view>
+    <view class="muted">先去点菜，开启今天想吃的一餐吧</view>
+    <view class="btn btn--primary start-card__btn" bindtap="goOrder">去点菜</view>
+  </view>
+
+  <block wx:if="{{hasMeal}}">
+    <!-- 待做 -->
+    <view class="group">
+      <view class="group__title">
+        <text class="dot dot--pending"></text>
+        <text>待做</text>
+        <text class="group__count">{{pending.length}}</text>
+      </view>
+      <view wx:if="{{pending.length}}">
+        <view wx:for="{{pending}}" wx:key="_id" class="card order">
+          <image class="order__img" src="{{item.dishImage}}" mode="aspectFill" lazy-load></image>
+          <view class="flex-1">
+            <view class="row gap-8">
+              <text class="order__name">{{item.dishName}}</text>
+              <text wx:if="{{item.quantity > 1}}" class="order__qty">×{{item.quantity}}</text>
+            </view>
+            <text class="muted">{{item.orderedByName}} 点的 · {{item.createdAtText}}</text>
+            <view class="order__actions">
+              <view class="btn btn--sm btn--primary" data-id="{{item._id}}" bindtap="onStart">开始做</view>
+              <view class="btn btn--sm btn--danger" data-id="{{item._id}}" data-name="{{item.dishName}}" bindtap="onDelete">删除</view>
+            </view>
+          </view>
+        </view>
+      </view>
+      <view wx:else class="group__empty">还没有待做的菜</view>
+    </view>
+
+    <!-- 正在做 -->
+    <view class="group">
+      <view class="group__title">
+        <text class="dot dot--cooking"></text>
+        <text>正在做</text>
+        <text class="group__count">{{cooking.length}}</text>
+      </view>
+      <view wx:if="{{cooking.length}}">
+        <view wx:for="{{cooking}}" wx:key="_id" class="card order">
+          <image class="order__img" src="{{item.dishImage}}" mode="aspectFill" lazy-load></image>
+          <view class="flex-1">
+            <view class="row gap-8">
+              <text class="order__name">{{item.dishName}}</text>
+              <text wx:if="{{item.quantity > 1}}" class="order__qty">×{{item.quantity}}</text>
+            </view>
+            <text class="muted">{{item.cookingByName}} 正在做</text>
+            <view class="order__actions">
+              <view class="btn btn--sm btn--accent" data-id="{{item._id}}" bindtap="onFinish">好了 ✓</view>
+            </view>
+          </view>
+        </view>
+      </view>
+      <view wx:else class="group__empty">暂时没有正在做的菜</view>
+    </view>
+
+    <!-- 已完成 -->
+    <view class="group">
+      <view class="group__title" bindtap="toggleDone">
+        <text class="dot dot--done"></text>
+        <text>已完成</text>
+        <text class="group__count">{{done.length}}</text>
+        <text class="group__toggle">{{showDone ? '收起 ▴' : '展开 ▾'}}</text>
+      </view>
+      <block wx:if="{{showDone}}">
+        <view wx:if="{{done.length}}">
+          <view wx:for="{{done}}" wx:key="_id" class="card order order--done">
+            <image class="order__img" src="{{item.dishImage}}" mode="aspectFill" lazy-load></image>
+            <view class="flex-1">
+              <view class="row gap-8">
+                <text class="order__name">{{item.dishName}}</text>
+                <text wx:if="{{item.quantity > 1}}" class="order__qty">×{{item.quantity}}</text>
+              </view>
+              <text class="muted">{{item.doneByName}} 已完成 · {{item.createdAtText}}</text>
+            </view>
+            <text class="order__check">✓</text>
+          </view>
+        </view>
+        <view wx:else class="group__empty">还没有完成的菜</view>
+      </block>
+    </view>
+
+    <view class="footer">
+      <view class="btn btn--ghost footer__logs" bindtap="goLogs">📝 操作记录</view>
+      <view class="btn btn--danger footer__close" bindtap="onCloseMeal">结束这一餐</view>
+    </view>
+  </block>
+</view>

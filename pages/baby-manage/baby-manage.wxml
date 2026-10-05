@@ -1,0 +1,52 @@
+<view class="page">
+  <view wx:if="{{loading}}" class="empty"><text class="empty__emoji">⏳</text><text>加载中...</text></view>
+
+  <block wx:elif="{{babies.length}}">
+    <view wx:for="{{babies}}" wx:key="_id" class="card baby">
+      <view class="baby__avatar">{{item.gender === '女' ? '👧' : '👦'}}</view>
+      <view class="flex-1">
+        <view class="title">{{item.nickname}}</view>
+        <view class="muted baby__meta">{{item.gender}} · {{item.ageMonths}} 个月 · {{item.birthdayText}}</view>
+      </view>
+      <view class="btn btn--sm btn--ghost" data-index="{{index}}" bindtap="openEdit">编辑</view>
+      <view class="btn btn--sm btn--danger" data-index="{{index}}" bindtap="onDelete">删除</view>
+    </view>
+  </block>
+
+  <view wx:else class="empty">
+    <text class="empty__emoji">👶</text>
+    <text>还没有宝宝档案，添加一个吧</text>
+  </view>
+
+  <view class="btn btn--primary btn--block add-btn" bindtap="openAdd">＋ 添加宝宝</view>
+  <view wx:if="{{babies.length}}" class="btn btn--ghost btn--block food-btn" bindtap="goBabyFood">查看今日辅食推荐</view>
+
+  <!-- 表单弹层 -->
+  <view wx:if="{{showForm}}" class="mask" bindtap="closeForm">
+    <view class="sheet" catchtap="noop">
+      <view class="sheet__title">{{editingId ? '编辑宝宝' : '添加宝宝'}}</view>
+      <view class="field">
+        <text class="field__label">昵称</text>
+        <input class="field__input" placeholder="宝宝昵称" value="{{form.nickname}}" bindinput="onNicknameInput" />
+      </view>
+      <view class="field">
+        <text class="field__label">性别</text>
+        <picker mode="selector" range="{{genders}}" bindchange="onGenderChange">
+          <view class="field__picker">{{form.gender}} ▾</view>
+        </picker>
+      </view>
+      <view class="field">
+        <text class="field__label">出生日期</text>
+        <picker mode="date" value="{{form.birthday}}" end="2026-12-31" bindchange="onBirthdayChange">
+          <view class="field__picker">{{form.birthday || '请选择'}} ▾</view>
+        </picker>
+      </view>
+      <view class="sheet__actions">
+        <view class="btn btn--ghost flex-1" bindtap="closeForm">取消</view>
+        <view class="btn btn--primary flex-1 {{submitting ? 'btn--disabled' : ''}}" bindtap="onSubmit">
+          {{submitting ? '保存中...' : '保存'}}
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

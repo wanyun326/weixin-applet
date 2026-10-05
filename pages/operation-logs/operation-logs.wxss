@@ -1,0 +1,55 @@
+.logs-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 8rpx 8rpx 20rpx;
+}
+
+.logs-head__label {
+  font-size: 34rpx;
+  font-weight: 700;
+}
+
+.log {
+  display: flex;
+  align-items: flex-start;
+}
+
+.log__body {
+  margin-left: 20rpx;
+}
+
+.log__line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.log__operator {
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.log__action {
+  font-size: 24rpx;
+  border-radius: 20rpx;
+  padding: 2rpx 16rpx;
+  background: #EDEFF3;
+  color: #6B6F76;
+}
+
+.log__action--add { background: #FFE7DE; color: #F4511E; }
+.log__action--start { background: #FFF3D6; color: #B37700; }
+.log__action--done { background: #DFF3F0; color: #1E7F76; }
+.log__action--delete { background: #FDE8E4; color: #E4572E; }
+
+.log__dish {
+  font-size: 28rpx;
+  color: #2D2A26;
+}
+
+.log__meta {
+  margin-top: 8rpx;
+  line-height: 1.5;
+}
