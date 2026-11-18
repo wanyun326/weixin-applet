@@ -16,19 +16,34 @@ const RELATED_COLLECTIONS = [
   'operation_logs',
   'babies',
   'baby_foods',
-  'dishes'
+  'dishes',
+  'dish_overrides'
 ];
+
+function isCollectionMissing(err) {
+  return /DATABASE_COLLECTION_NOT_EXIST|Db or Table not exist|collection.*not exists/i.test(
+    [err && err.errCode, err && err.errMsg, err && err.message]
+      .filter(Boolean)
+      .join(' ')
+  );
+}
 
 /** 分批删除某家庭下的所有关联文档，兼容云数据库单次返回数量限制 */
 async function removeFamilyDocuments(collectionName, familyId) {
   let removed = 0;
   for (let guard = 0; guard < 200; guard += 1) {
-    // eslint-disable-next-line no-await-in-loop
-    const res = await db
-      .collection(collectionName)
-      .where({ familyId })
-      .limit(100)
-      .get();
+    let res;
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      res = await db
+        .collection(collectionName)
+        .where({ familyId })
+        .limit(100)
+        .get();
+    } catch (err) {
+      if (isCollectionMissing(err)) return removed;
+      throw err;
+    }
     if (!res.data.length) break;
 
     // eslint-disable-next-line no-await-in-loop
@@ -99,6 +114,32 @@ async function cleanupMealImages(familyId) {
   await deleteCloudFiles(fileList);
 }
 
+async function cleanupDishOverrideImages(familyId) {
+  const overrides = [];
+  for (let skip = 0; skip < 1000; skip += 100) {
+    let res;
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      res = await db
+        .collection('dish_overrides')
+        .where({ familyId })
+        .skip(skip)
+        .limit(100)
+        .get();
+    } catch (err) {
+      if (isCollectionMissing(err)) return;
+      throw err;
+    }
+    overrides.push(...res.data);
+    if (res.data.length < 100) break;
+  }
+  await deleteCloudFiles(
+    overrides
+      .map((override) => override.imageUrl)
+      .filter((imageUrl) => /^cloud:\/\//.test(imageUrl || ''))
+  );
+}
+
 exports.main = handler(async (event, openid) => {
   const { familyId } = event;
   if (!familyId) return fail('缺少家庭信息');
@@ -110,6 +151,7 @@ exports.main = handler(async (event, openid) => {
 
   const removed = {};
   await cleanupDishImages(familyId);
+  await cleanupDishOverrideImages(familyId);
   await cleanupMealImages(familyId);
   for (const collectionName of RELATED_COLLECTIONS) {
     // eslint-disable-next-line no-await-in-loop

@@ -1,6 +1,6 @@
 # 云数据库设计
 
-本项目使用微信云开发 NoSQL 数据库，共 8 个集合。
+本项目使用微信云开发 NoSQL 数据库，共 9 个集合。
 
 ## 集合总览
 
@@ -10,6 +10,7 @@
 | `family_members` | 家庭成员 | 云函数 |
 | `meals` | 当餐 | 云函数 |
 | `dishes` | 内置 + 家庭自定义菜品库 | `initData`（管理员）+ `manageDish` 云函数 |
+| `dish_overrides` | 家庭对内置菜图片的覆盖 | `manageDish` 云函数 |
 | `orders` | 点菜记录 | 云函数 |
 | `operation_logs` | 操作记录 | 云函数（只增不删） |
 | `babies` | 宝宝档案 | 小程序端（成员） |
@@ -76,6 +77,15 @@
 | `familyId` | string | 自定义菜所属家庭；内置菜为空 |
 | `createdBy` | string | 自定义菜创建人 openid |
 | `createdAt` / `updatedAt` | date | 创建 / 更新时间 |
+
+### dish_overrides（默认菜图片覆盖）
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `_id` | string | 由 `familyId + dishId` 稳定生成 |
+| `familyId` / `dishId` | string | 所属家庭 / 内置菜品 |
+| `imageUrl` | string | 家庭上传的云存储图片 fileID |
+| `updatedBy` / `updatedAt` | string / date | 更新人 / 更新时间 |
 
 ### orders（点菜记录）
 
@@ -169,6 +179,15 @@
 
 > 菜品列表统一由 `manageDish` 云函数返回：内置菜 + 当前家庭自定义菜。客户端无需直接读取 `dishes`。
 
+**dish_overrides**
+
+```json
+{
+  "read": false,
+  "write": false
+}
+```
+
 **orders**
 
 ```json
@@ -218,6 +237,7 @@
 | `orders` | `familyId` + `mealId` | 当餐订单 / 实时监听 |
 | `orders` | `familyId` + `mealId` + `status` | 状态分组 |
 | `orders` | `familyId` + `mealId` + `dishId`（唯一） | 历史数据兜底，禁止同餐重复菜品 |
+| `dish_overrides` | `familyId` + `dishId` | 家庭默认菜图片覆盖 |
 | `operation_logs` | `familyId` + `mealId` + `createdAt` | 操作记录 |
 | `babies` | `familyId` | 宝宝列表 |
 | `baby_foods` | `familyId` + `isCustom` | 自定义辅食 |

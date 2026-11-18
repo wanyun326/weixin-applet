@@ -2,10 +2,22 @@
   <view class="card intro">
     <view class="flex-1">
       <view class="intro__family">{{familyName}}</view>
-      <view class="intro__title">家庭自定义菜单</view>
-      <view class="muted intro__desc">这里添加的菜品只有本家庭成员可以看到和点选。</view>
+      <view class="intro__title">家庭菜单管理</view>
+      <view class="muted intro__desc">默认菜可上传家庭专属图片；自定义菜还支持编辑和删除。</view>
     </view>
     <view class="btn btn--primary" bindtap="openAdd">＋ 添加菜品</view>
+  </view>
+
+  <view class="search">
+    <text class="search__icon">🔍</text>
+    <input
+      class="search__input"
+      placeholder="搜索菜名或描述"
+      confirm-type="search"
+      value="{{searchKeyword}}"
+      bindinput="onSearchInput"
+    />
+    <text wx:if="{{searchKeyword}}" class="search__clear" bindtap="clearSearch">清除</text>
   </view>
 
   <view wx:if="{{loading}}" class="empty">
@@ -13,41 +25,94 @@
     <text>加载中...</text>
   </view>
 
-  <block wx:elif="{{dishes.length}}">
-    <view
-      wx:for="{{dishes}}"
-      wx:key="_id"
-      class="card custom-dish"
-    >
-      <image
-        class="custom-dish__img"
-        src="{{item.imageUrl || '/images/dishes/hot.png'}}"
-        mode="aspectFill"
-        data-url="{{item.imageUrl}}"
-        bindtap="previewImage"
-      ></image>
-      <view class="flex-1 custom-dish__body">
-        <view class="row gap-8">
-          <text class="custom-dish__name">{{item.name}}</text>
-          <text class="tag">{{item.category}}</text>
-        </view>
-        <text class="muted custom-dish__desc">{{item.desc || '暂无描述'}}</text>
-        <view class="custom-dish__actions">
-          <view class="btn btn--sm btn--ghost" data-index="{{index}}" bindtap="openEdit">编辑</view>
-          <view
-            class="btn btn--sm btn--danger {{deletingId === item._id ? 'btn--disabled' : ''}}"
-            data-index="{{index}}"
-            bindtap="onDelete"
-          >{{deletingId === item._id ? '删除中...' : '删除'}}</view>
+  <block wx:else>
+    <view wx:if="{{builtInDishes.length}}" class="dish-section">
+      <view class="dish-section__head">
+        <text class="dish-section__title">默认菜品</text>
+        <text class="muted">{{builtInDishes.length}} 道</text>
+      </view>
+      <view
+        wx:for="{{builtInDishes}}"
+        wx:key="_id"
+        class="card custom-dish"
+      >
+        <image
+          class="custom-dish__img"
+          src="{{item.imageUrl || '/images/dishes/hot.png'}}"
+          mode="aspectFill"
+          data-url="{{item.imageUrl}}"
+          bindtap="previewImage"
+        ></image>
+        <view class="flex-1 custom-dish__body">
+          <view class="row gap-8">
+            <text class="custom-dish__name">{{item.name}}</text>
+            <text class="tag">{{item.category}}</text>
+            <text class="tag tag--builtin">默认</text>
+          </view>
+          <text class="muted custom-dish__desc">{{item.desc || '暂无描述'}}</text>
+          <view class="custom-dish__actions">
+            <view
+              class="btn btn--sm btn--primary {{uploadingImageId === item._id ? 'btn--disabled' : ''}}"
+              data-index="{{index}}"
+              bindtap="onUploadBuiltinImage"
+            >{{uploadingImageId === item._id ? '上传中...' : (item.imageOverridden ? '更换图片' : '上传图片')}}</view>
+            <view
+              wx:if="{{item.imageOverridden}}"
+              class="btn btn--sm btn--ghost"
+              data-index="{{index}}"
+              bindtap="onRestoreBuiltinImage"
+            >恢复默认</view>
+          </view>
         </view>
       </view>
     </view>
-  </block>
 
-  <view wx:else class="empty">
-    <text class="empty__emoji">🍲</text>
-    <text>还没有自定义菜品，添加一道家里常吃的菜吧</text>
-  </view>
+    <view wx:if="{{customDishes.length}}" class="dish-section">
+      <view class="dish-section__head">
+        <text class="dish-section__title">自定义菜品</text>
+        <text class="muted">{{customDishes.length}} 道</text>
+      </view>
+      <view
+        wx:for="{{customDishes}}"
+        wx:key="_id"
+        class="card custom-dish"
+      >
+        <image
+          class="custom-dish__img"
+          src="{{item.imageUrl || '/images/dishes/hot.png'}}"
+          mode="aspectFill"
+          data-url="{{item.imageUrl}}"
+          bindtap="previewImage"
+        ></image>
+        <view class="flex-1 custom-dish__body">
+          <view class="row gap-8">
+            <text class="custom-dish__name">{{item.name}}</text>
+            <text class="tag">{{item.category}}</text>
+            <text class="tag tag--custom">自定义</text>
+          </view>
+          <text class="muted custom-dish__desc">{{item.desc || '暂无描述'}}</text>
+          <view class="custom-dish__actions">
+            <view class="btn btn--sm btn--ghost" data-index="{{index}}" bindtap="openEdit">编辑</view>
+            <view
+              class="btn btn--sm btn--danger {{deletingId === item._id ? 'btn--disabled' : ''}}"
+              data-index="{{index}}"
+              bindtap="onDelete"
+            >{{deletingId === item._id ? '删除中...' : '删除'}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{searchKeyword && !builtInDishes.length && !customDishes.length}}" class="empty">
+      <text class="empty__emoji">🔍</text>
+      <text>没有找到相关菜品</text>
+    </view>
+
+    <view wx:if="{{!searchKeyword && !dishes.length}}" class="empty">
+      <text class="empty__emoji">🍲</text>
+      <text>暂无菜品，先添加一道吧</text>
+    </view>
+  </block>
 
   <view wx:if="{{showForm}}" class="mask" bindtap="closeForm">
     <view class="sheet" catchtap="noop">

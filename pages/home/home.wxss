@@ -75,6 +75,34 @@
   background: linear-gradient(135deg, #FFFFFF, #F3FFFC);
 }
 
+.search {
+  display: flex;
+  align-items: center;
+  height: 82rpx;
+  margin-bottom: 20rpx;
+  padding: 0 24rpx;
+  border-radius: 20rpx;
+  background: #fff;
+  box-shadow: 0 4rpx 20rpx rgba(45, 42, 38, 0.05);
+}
+
+.search__icon {
+  margin-right: 12rpx;
+  font-size: 30rpx;
+}
+
+.search__input {
+  flex: 1;
+  min-width: 0;
+  font-size: 28rpx;
+}
+
+.search__clear {
+  padding-left: 16rpx;
+  color: #FF7043;
+  font-size: 24rpx;
+}
+
 .picked__head {
   display: flex;
   align-items: center;

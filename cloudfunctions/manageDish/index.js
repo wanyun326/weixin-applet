@@ -6,6 +6,7 @@ const {
   fail,
   createError,
   getDocOrNull,
+  stableDocId,
   serverDate,
   assertMember,
   handler
@@ -13,6 +14,39 @@ const {
 
 const CATEGORIES = ['热销', '荤菜', '素菜', '主食', '汤类'];
 const PAGE_SIZE = 100;
+
+function isCollectionMissing(err) {
+  const text = [
+    err && err.errCode,
+    err && err.errMsg,
+    err && err.message
+  ]
+    .filter(Boolean)
+    .join(' ');
+  return /DATABASE_COLLECTION_NOT_EXIST|Db or Table not exist|collection.*not exists/i.test(
+    text
+  );
+}
+
+async function ensureOverrideCollection() {
+  try {
+    await db.collection('dish_overrides').limit(1).get();
+    return;
+  } catch (err) {
+    if (!isCollectionMissing(err)) throw err;
+  }
+  try {
+    await db.createCollection('dish_overrides');
+  } catch (err) {
+    if (!/already exists|collection.*exist/i.test(
+      [err && err.errCode, err && err.errMsg, err && err.message]
+        .filter(Boolean)
+        .join(' ')
+    )) {
+      throw err;
+    }
+  }
+}
 
 function cleanText(value, maxLength) {
   return String(value || '').trim().slice(0, maxLength);
@@ -32,6 +66,23 @@ async function listAllDishes() {
     // eslint-disable-next-line no-await-in-loop
     const res = await db
       .collection('dishes')
+      .skip(skip)
+      .limit(PAGE_SIZE)
+      .get();
+    result.push(...res.data);
+    if (res.data.length < PAGE_SIZE) break;
+  }
+  return result;
+}
+
+async function listFamilyOverrides(familyId) {
+  await ensureOverrideCollection();
+  const result = [];
+  for (let skip = 0; skip < 1000; skip += PAGE_SIZE) {
+    // eslint-disable-next-line no-await-in-loop
+    const res = await db
+      .collection('dish_overrides')
+      .where({ familyId })
       .skip(skip)
       .limit(PAGE_SIZE)
       .get();
@@ -64,12 +115,29 @@ exports.main = handler(async (event, openid) => {
   await assertMember(familyId, openid);
 
   if (action === 'list') {
-    const allDishes = await listAllDishes();
+    const [allDishes, overrides] = await Promise.all([
+      listAllDishes(),
+      listFamilyOverrides(familyId)
+    ]);
+    const overrideByDish = {};
+    overrides.forEach((override) => {
+      overrideByDish[override.dishId] = override;
+    });
     return ok({
       dishes: allDishes
-        .filter(
-          (dish) => !dish.isCustom || dish.familyId === familyId
-        )
+        .filter((dish) => !dish.isCustom || dish.familyId === familyId)
+        .map((dish) => {
+          if (dish.isCustom) {
+            return { ...dish, isBuiltIn: false, imageOverridden: false };
+          }
+          const override = overrideByDish[dish._id];
+          return {
+            ...dish,
+            imageUrl: override ? override.imageUrl : dish.imageUrl,
+            isBuiltIn: true,
+            imageOverridden: !!override
+          };
+        })
         .sort((left, right) => {
           if ((left.sort || 0) !== (right.sort || 0)) {
             return (right.sort || 0) - (left.sort || 0);
@@ -77,6 +145,51 @@ exports.main = handler(async (event, openid) => {
           return new Date(right.createdAt || 0) - new Date(left.createdAt || 0);
         })
     });
+  }
+
+  if (action === 'setDefaultImage') {
+    await ensureOverrideCollection();
+    const imageUrl = validateImageUrl(event.imageUrl);
+    if (!/^cloud:\/\//.test(imageUrl)) {
+      return fail('默认菜图片必须先上传到云存储');
+    }
+    const dish = await getDocOrNull(db.collection('dishes'), dishId);
+    if (!dish) return fail('菜品不存在');
+    if (dish.isCustom) return fail('自定义菜请使用编辑功能更换图片');
+
+    const overrideId = stableDocId('dishimg', [familyId, dishId]);
+    const previous = await getDocOrNull(
+      db.collection('dish_overrides'),
+      overrideId
+    );
+    await db.collection('dish_overrides').doc(overrideId).set({
+      data: {
+        familyId,
+        dishId,
+        imageUrl,
+        updatedBy: openid,
+        updatedAt: serverDate()
+      }
+    });
+    if (previous && previous.imageUrl !== imageUrl) {
+      await cleanupCloudFile(previous.imageUrl);
+    }
+    return ok({ dishId, imageUrl });
+  }
+
+  if (action === 'restoreDefaultImage') {
+    if (!dishId) return fail('缺少菜品信息');
+    await ensureOverrideCollection();
+    const overrideId = stableDocId('dishimg', [familyId, dishId]);
+    const override = await getDocOrNull(
+      db.collection('dish_overrides'),
+      overrideId
+    );
+    if (override) {
+      await db.collection('dish_overrides').doc(overrideId).remove();
+      await cleanupCloudFile(override.imageUrl);
+    }
+    return ok({ dishId });
   }
 
   if (action === 'add') {

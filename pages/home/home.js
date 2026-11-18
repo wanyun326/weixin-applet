@@ -42,6 +42,7 @@ Page({
     mealLabel: '',
     categories: CATEGORIES,
     activeCategory: '热销',
+    searchKeyword: '',
     allDishes: [],
     dishes: [],
     orderedDishIds: [],
@@ -209,8 +210,24 @@ Page({
     (orderedDishes || []).forEach((order) => {
       orderByDish[order.dishId] = order;
     });
+    const keyword = String(this.data.searchKeyword || '')
+      .trim()
+      .toLowerCase();
     return this.data.allDishes
-      .filter((d) => d.category === category)
+      .filter((dish) => {
+        if (!keyword) return dish.category === category;
+        return (
+          String(dish.name || '')
+            .toLowerCase()
+            .includes(keyword) ||
+          String(dish.desc || '')
+            .toLowerCase()
+            .includes(keyword) ||
+          String(dish.category || '')
+            .toLowerCase()
+            .includes(keyword)
+        );
+      })
       .map((dish) => {
         const order = orderByDish[dish._id];
         return {
@@ -237,7 +254,21 @@ Page({
   },
 
   onSelectCategory(e) {
-    this.applyFilter(e.currentTarget.dataset.category);
+    this.setData({ searchKeyword: '' }, () =>
+      this.applyFilter(e.currentTarget.dataset.category)
+    );
+  },
+
+  onSearchInput(e) {
+    this.setData({ searchKeyword: e.detail.value }, () =>
+      this.applyFilter(this.data.activeCategory)
+    );
+  },
+
+  clearSearch() {
+    this.setData({ searchKeyword: '' }, () =>
+      this.applyFilter(this.data.activeCategory)
+    );
   },
 
   /** 开启新的一餐（名称可编辑） */

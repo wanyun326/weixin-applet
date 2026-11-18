@@ -245,6 +245,9 @@ const fakeCloud = {
   },
   getWXContext() {
     return { OPENID: currentOpenid, APPID: 'test-app' };
+  },
+  async deleteFile({ fileList }) {
+    return { fileList };
   }
 };
 
@@ -579,7 +582,8 @@ async function testDeleteFamily() {
     'operation_logs',
     'babies',
     'baby_foods',
-    'dishes'
+    'dishes',
+    'dish_overrides'
   ];
   for (const collectionName of relatedCollections) {
     await seed(collectionName, [
@@ -639,6 +643,38 @@ async function testManageDish() {
     '可以读取内置菜品'
   );
   assert.strictEqual(initial.data.dishes.length, 1);
+  assert.strictEqual(initial.data.dishes[0].isBuiltIn, true);
+
+  await expectCode(
+    manageDish({
+      familyId: 'family-a',
+      action: 'setDefaultImage',
+      dishId: 'builtin-dish',
+      imageUrl: 'cloud://family-builtin-image'
+    }),
+    0,
+    '可以覆盖默认菜品图片'
+  );
+  const overridden = await expectCode(
+    manageDish({ familyId: 'family-a', action: 'list' }),
+    0,
+    '可以读取覆盖后的默认菜品图片'
+  );
+  assert.strictEqual(
+    overridden.data.dishes[0].imageUrl,
+    'cloud://family-builtin-image'
+  );
+  assert.strictEqual(overridden.data.dishes[0].imageOverridden, true);
+
+  await expectCode(
+    manageDish({
+      familyId: 'family-a',
+      action: 'restoreDefaultImage',
+      dishId: 'builtin-dish'
+    }),
+    0,
+    '可以恢复默认菜品图片'
+  );
 
   const added = await expectCode(
     manageDish({
@@ -746,7 +782,15 @@ function testHomeOrderState() {
         _id: 'dish-a',
         name: '西红柿炒蛋',
         category: '热销',
-        imageUrl: '/images/dishes/hot.png'
+        imageUrl: '/images/dishes/hot.png',
+        desc: '酸甜下饭'
+      },
+      {
+        _id: 'dish-soup',
+        name: '冬瓜排骨汤',
+        category: '汤类',
+        imageUrl: '/images/dishes/soup.png',
+        desc: '清爽不油腻'
       }
     ];
     page.applyOrders([
@@ -761,6 +805,11 @@ function testHomeOrderState() {
     assert.strictEqual(page.data.orderedDishes[0].dishName, '西红柿炒蛋');
     assert.strictEqual(page.data.dishes[0].ordered, true);
     assert.strictEqual(page.data.dishes[0].orderStatusText, '待做');
+
+    page.data.searchKeyword = '排骨';
+    page.applyFilter('热销');
+    assert.strictEqual(page.data.dishes.length, 1);
+    assert.strictEqual(page.data.dishes[0].name, '冬瓜排骨汤');
   } finally {
     global.getApp = originalGetApp;
     global.Page = originalPage;

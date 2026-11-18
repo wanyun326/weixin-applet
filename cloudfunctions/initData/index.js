@@ -1,7 +1,7 @@
 // 云函数：初始化数据库（写入预设菜品库 / 辅食库 / 索引提示）
 // 使用方式：微信开发者工具「云函数 -> initData -> 云端测试」传入 {} 或 { "reset": true }
 // reset=true 会重建内置菜品与内置辅食，但保留家庭自定义辅食。
-const { db, ok, assertAdmin, handler } = require('./common');
+const { db, ok, stableDocId, assertAdmin, handler } = require('./common');
 
 const DISHES = require('./data/dishes');
 const BABY_FOODS = require('./data/babyFoods');
@@ -11,6 +11,7 @@ const COLLECTIONS = [
   'family_members',
   'meals',
   'dishes',
+  'dish_overrides',
   'orders',
   'operation_logs',
   'babies',
@@ -122,6 +123,24 @@ async function seed(name, list) {
   return toInsert.length;
 }
 
+/** 内置菜使用稳定 ID，保证同步预设后家庭图片覆盖仍然关联正确 */
+async function seedDishes(list) {
+  const existing = await db
+    .collection('dishes')
+    .field({ name: true })
+    .limit(1000)
+    .get();
+  const names = new Set(existing.data.map((dish) => dish.name));
+  const toInsert = list.filter((item) => !names.has(item.name));
+  await Promise.all(
+    toInsert.map((dish) => {
+      const dishId = stableDocId('dish', [dish.name]);
+      return db.collection('dishes').doc(dishId).set({ data: dish });
+    })
+  );
+  return toInsert.length;
+}
+
 exports.main = handler(async (event, openid) => {
   assertAdmin(openid);
   const reset = !!event.reset;
@@ -135,7 +154,7 @@ exports.main = handler(async (event, openid) => {
   }
 
   const [dishesInserted, foodsInserted] = await Promise.all([
-    seed('dishes', DISHES),
+    seedDishes(DISHES),
     seed('baby_foods', BABY_FOODS)
   ]);
 

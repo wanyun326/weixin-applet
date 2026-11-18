@@ -105,12 +105,12 @@ Page({
     if (this.data.initializingData) return;
     this.setData({ initializingData: true });
     try {
-      const result = await db.callFunction('initData');
+      const result = await db.callFunction('initData', { reset: true });
       wx.showModal({
-        title: '初始化成功',
-        content: `新增菜品 ${result.dishesInserted || 0} 道，新增辅食 ${
+        title: '预设菜单已同步',
+        content: `当前预设菜品 ${result.dishesInserted || 0} 道，辅食 ${
           result.foodsInserted || 0
-        } 条。`,
+        } 条。家庭自定义菜品不会被删除。`,
         showCancel: false
       });
       this.refresh();

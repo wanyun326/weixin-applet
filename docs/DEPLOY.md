@@ -24,10 +24,10 @@ module.exports = {
 
 ## 3. 创建数据库集合
 
-推荐先完成第 4 步部署云函数，再运行 `initData` 自动创建缺失集合。若不想使用云函数自动创建，也可以在「云开发控制台 → 数据库」中手动新建以下 8 个集合：
+推荐先完成第 4 步部署云函数，再运行 `initData` 自动创建缺失集合。若不想使用云函数自动创建，也可以在「云开发控制台 → 数据库」中手动新建以下 9 个集合：
 
 ```
-families  family_members  meals  dishes  orders  operation_logs  babies  baby_foods
+families  family_members  meals  dishes  dish_overrides  orders  operation_logs  babies  baby_foods
 ```
 
 然后为每个集合配置权限（安全规则），见 [DATABASE.md](DATABASE.md#安全规则在云开发控制台逐集合配置)。
@@ -68,7 +68,7 @@ wx.cloud.callFunction({ name: 'login' }).then((res) => {
 INIT_ADMIN_OPENIDS=管理员openid1,管理员openid2
 ```
 
-5. 保存环境变量后，回到开发版首页，点击「初始化基础数据」。
+5. 保存环境变量后，回到开发版首页，点击「同步预设菜单」。该操作会重建内置菜和内置辅食，但保留家庭自定义内容。
 6. 如果按钮调用失败，可在小程序 Console 中执行：
 
 ```js
@@ -77,8 +77,8 @@ wx.cloud.callFunction({ name: 'initData', data: {} }).then((res) => {
 });
 ```
 
-7. 首次初始化会自动创建缺失集合，并写入 30 道预设菜品与 16 条辅食。
-8. 如需**重置**，把 Console 调用参数改为 `{ reset: true }`。只会重写内置菜品与内置辅食，家庭自定义辅食不会被删除。
+7. 首次初始化会自动创建缺失集合，并写入 11 道预设菜品与 16 条辅食。
+8. 开发版按钮会以 `{ reset: true }` 调用；家庭自定义菜品、默认菜家庭图片和自定义辅食均不会被删除。
 
 > `initData` 未配置管理员或调用人不在白名单时会返回 403，这是安全保护，不是部署故障。
 
@@ -93,12 +93,13 @@ wx.cloud.callFunction({ name: 'initData', data: {} }).then((res) => {
       "family_members",
       "meals",
       "dishes",
+      "dish_overrides",
       "orders",
       "operation_logs",
       "babies",
       "baby_foods"
     ],
-    "dishesInserted": 30,
+    "dishesInserted": 11,
     "foodsInserted": 16
   }
 }

@@ -30,6 +30,18 @@
 
   <!-- 菜品 -->
   <block wx:if="{{meal}}">
+    <view class="search">
+      <text class="search__icon">🔍</text>
+      <input
+        class="search__input"
+        placeholder="搜索菜名、描述或分类"
+        confirm-type="search"
+        value="{{searchKeyword}}"
+        bindinput="onSearchInput"
+      />
+      <text wx:if="{{searchKeyword}}" class="search__clear" bindtap="clearSearch">清除</text>
+    </view>
+
     <!-- 当前当餐已点清单：始终展示菜名，切换分类也不会丢 -->
     <view wx:if="{{orderedDishes.length}}" class="card picked">
       <view class="picked__head">
@@ -50,7 +62,7 @@
       </scroll-view>
     </view>
 
-    <scroll-view class="cats" scroll-x enable-flex>
+    <scroll-view wx:if="{{!searchKeyword}}" class="cats" scroll-x enable-flex>
       <view
         wx:for="{{categories}}"
         wx:key="*this"
@@ -88,8 +100,8 @@
     </block>
 
     <view wx:else class="empty">
-      <text class="empty__emoji">🍽️</text>
-      <text>这个分类还没有菜品</text>
+      <text class="empty__emoji">{{searchKeyword ? '🔍' : '🍽️'}}</text>
+      <text>{{searchKeyword ? '没有找到相关菜品' : '这个分类还没有菜品'}}</text>
     </view>
   </block>
 </view>

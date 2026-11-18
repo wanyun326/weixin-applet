@@ -47,10 +47,10 @@
       <view
         class="btn btn--sm btn--accent flex-1 {{initializingData ? 'btn--disabled' : ''}}"
         bindtap="onInitData"
-      >{{initializingData ? '初始化中...' : '初始化基础数据'}}</view>
+      >{{initializingData ? '同步中...' : '同步预设菜单'}}</view>
     </view>
     <view class="muted openid-debug__tip">
-      配置 INIT_ADMIN_OPENIDS 后，再点击初始化基础数据。
+      配置 INIT_ADMIN_OPENIDS 后，可同步最新预设菜单；自定义菜会保留。
     </view>
   </view>
 

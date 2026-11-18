@@ -20,10 +20,14 @@ Page({
     familyId: '',
     familyName: '',
     dishes: [],
+    builtInDishes: [],
+    customDishes: [],
+    searchKeyword: '',
     loading: true,
     showForm: false,
     submitting: false,
     deletingId: '',
+    uploadingImageId: '',
     editingId: '',
     categories: CATEGORIES,
     categoryIndex: 0,
@@ -64,14 +68,50 @@ Page({
         familyId: this.data.familyId,
         action: 'list'
       });
-      const dishes = ((data && data.dishes) || []).filter(
-        (dish) => dish.isCustom
-      );
-      this.setData({ dishes, loading: false });
+      const dishes = (data && data.dishes) || [];
+      this.setData({ dishes, loading: false }, () => this.applyDishFilter());
     } catch (err) {
-      this.setData({ loading: false, dishes: [] });
+      this.setData({
+        loading: false,
+        dishes: [],
+        builtInDishes: [],
+        customDishes: []
+      });
       wx.showToast({ title: err.message || '自定义菜单加载失败', icon: 'none' });
     }
+  },
+
+  applyDishFilter(keyword = this.data.searchKeyword) {
+    const normalizedKeyword = String(keyword || '').trim().toLowerCase();
+    const matches = (dish) =>
+      !normalizedKeyword ||
+      String(dish.name || '')
+        .toLowerCase()
+        .includes(normalizedKeyword) ||
+      String(dish.desc || '')
+        .toLowerCase()
+        .includes(normalizedKeyword) ||
+      String(dish.category || '')
+        .toLowerCase()
+        .includes(normalizedKeyword);
+    this.setData({
+      builtInDishes: this.data.dishes.filter(
+        (dish) => !dish.isCustom && matches(dish)
+      ),
+      customDishes: this.data.dishes.filter(
+        (dish) => dish.isCustom && matches(dish)
+      )
+    });
+  },
+
+  onSearchInput(e) {
+    this.setData({ searchKeyword: e.detail.value }, () =>
+      this.applyDishFilter(e.detail.value)
+    );
+  },
+
+  clearSearch() {
+    this.setData({ searchKeyword: '' }, () => this.applyDishFilter(''));
   },
 
   openAdd() {
@@ -84,7 +124,7 @@ Page({
   },
 
   openEdit(e) {
-    const dish = this.data.dishes[e.currentTarget.dataset.index];
+    const dish = this.data.customDishes[e.currentTarget.dataset.index];
     const categoryIndex = Math.max(0, CATEGORIES.indexOf(dish.category));
     this.setData({
       showForm: true,
@@ -117,43 +157,101 @@ Page({
     });
   },
 
+  async chooseImages(count) {
+    if (wx.chooseMedia) {
+      const res = await new Promise((resolve, reject) => {
+        wx.chooseMedia({
+          count,
+          mediaType: ['image'],
+          sourceType: ['album', 'camera'],
+          sizeType: ['compressed'],
+          success: resolve,
+          fail: reject
+        });
+      });
+      return (res.tempFiles || []).map((file) => file.tempFilePath);
+    }
+    const res = await new Promise((resolve, reject) => {
+      wx.chooseImage({
+        count,
+        sizeType: ['compressed'],
+        sourceType: ['album', 'camera'],
+        success: resolve,
+        fail: reject
+      });
+    });
+    return res.tempFilePaths || [];
+  },
+
   async onChooseImage() {
     try {
-      let tempFilePath = '';
-      if (wx.chooseMedia) {
-        const res = await new Promise((resolve, reject) => {
-          wx.chooseMedia({
-            count: 1,
-            mediaType: ['image'],
-            sourceType: ['album', 'camera'],
-            sizeType: ['compressed'],
-            success: resolve,
-            fail: reject
-          });
-        });
-        tempFilePath = res.tempFiles && res.tempFiles[0]
-          ? res.tempFiles[0].tempFilePath
-          : '';
-      } else {
-        const res = await new Promise((resolve, reject) => {
-          wx.chooseImage({
-            count: 1,
-            sizeType: ['compressed'],
-            sourceType: ['album', 'camera'],
-            success: resolve,
-            fail: reject
-          });
-        });
-        tempFilePath = (res.tempFilePaths && res.tempFilePaths[0]) || '';
-      }
-      if (tempFilePath) {
-        this.setData({ 'form.imageUrl': tempFilePath });
+      const paths = await this.chooseImages(1);
+      if (paths[0]) {
+        this.setData({ 'form.imageUrl': paths[0] });
       }
     } catch (err) {
       if (!/cancel/i.test((err && err.errMsg) || '')) {
         wx.showToast({ title: '选择图片失败', icon: 'none' });
       }
     }
+  },
+
+  async onUploadBuiltinImage(e) {
+    if (this.data.uploadingImageId) return;
+    const dish = this.data.builtInDishes[e.currentTarget.dataset.index];
+    let tempFilePath = '';
+    try {
+      const paths = await this.chooseImages(1);
+      tempFilePath = paths[0] || '';
+    } catch (err) {
+      if (!/cancel/i.test((err && err.errMsg) || '')) {
+        wx.showToast({ title: '选择图片失败', icon: 'none' });
+      }
+      return;
+    }
+    if (!tempFilePath) return;
+
+    this.setData({ uploadingImageId: dish._id });
+    let uploadedFileID = '';
+    try {
+      uploadedFileID = await this.uploadDishImage(tempFilePath);
+      await db.callFunction('manageDish', {
+        familyId: this.data.familyId,
+        action: 'setDefaultImage',
+        dishId: dish._id,
+        imageUrl: uploadedFileID
+      });
+      wx.showToast({ title: '默认菜图片已更新', icon: 'success' });
+      await this.loadDishes();
+    } catch (err) {
+      if (uploadedFileID) await this.cleanupUploadedFile(uploadedFileID);
+      wx.showToast({ title: err.message || '图片上传失败', icon: 'none' });
+    } finally {
+      this.setData({ uploadingImageId: '' });
+    }
+  },
+
+  onRestoreBuiltinImage(e) {
+    const dish = this.data.builtInDishes[e.currentTarget.dataset.index];
+    wx.showModal({
+      title: '恢复默认图片',
+      content: `确定恢复「${dish.name}」的内置图片吗？`,
+      confirmText: '恢复',
+      success: async (res) => {
+        if (!res.confirm) return;
+        try {
+          await db.callFunction('manageDish', {
+            familyId: this.data.familyId,
+            action: 'restoreDefaultImage',
+            dishId: dish._id
+          });
+          wx.showToast({ title: '已恢复默认图片', icon: 'success' });
+          await this.loadDishes();
+        } catch (err) {
+          wx.showToast({ title: err.message || '恢复失败', icon: 'none' });
+        }
+      }
+    });
   },
 
   uploadDishImage(tempFilePath) {
@@ -233,7 +331,7 @@ Page({
   },
 
   onDelete(e) {
-    const dish = this.data.dishes[e.currentTarget.dataset.index];
+    const dish = this.data.customDishes[e.currentTarget.dataset.index];
     wx.showModal({
       title: '删除菜品',
       content: `确定删除自定义菜品「${dish.name}」吗？历史订单中的菜名和图片会保留。`,
