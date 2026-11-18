@@ -33,21 +33,17 @@ Page({
     this.setData({ familyId: family._id, familyName: family.name, loading: true });
 
     try {
-      await this.ensureOpenid();
-      const openid = app.globalData.openid;
-
-      const familyDoc = await db.db().collection('families').doc(family._id).get();
-      const fam = familyDoc.data;
-
-      const memberList = await db.getAll('family_members', {
-        where: { familyId: family._id },
-        orderBy: 'joinedAt',
-        order: 'asc'
+      const login = await db.callFunction('login', {
+        familyId: family._id
       });
+      const openid = login.openid;
+      app.globalData.openid = openid;
+      const fam = login.family;
+      if (!fam) throw new Error('家庭不存在');
 
-      const members = memberList.map((m) => ({
+      const members = (login.members || []).map((m) => ({
         ...m,
-        joinedAtText: util.mdhm(m.joinedAt),
+        joinedAtText: m.joinedAt ? util.mdhm(m.joinedAt) : '较早',
         isCreator: m.openid === fam.creatorOpenid,
         isSelf: m.openid === openid
       }));
@@ -84,13 +80,6 @@ Page({
       }
       wx.showToast({ title: message || '家庭信息加载失败', icon: 'none' });
     }
-  },
-
-  async ensureOpenid() {
-    if (app.globalData.openid) return app.globalData.openid;
-    const res = await db.callFunction('login');
-    app.globalData.openid = res.openid;
-    return res.openid;
   },
 
   copyCode() {

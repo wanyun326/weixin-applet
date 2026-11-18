@@ -543,6 +543,16 @@ async function testLoginFamilyList() {
       createdAt: new Date('2026-11-17')
     }
   ]);
+  await seed('family_members', [
+    {
+      _id: 'member-a',
+      familyId: 'family-a',
+      openid: 'user-a',
+      nickname: '晚云',
+      avatar: '',
+      joinedAt: new Date('2026-11-18')
+    }
+  ]);
 
   const login = loadFunction('login');
   const result = await expectCode(login({}), 0, '登录可以返回家庭列表');
@@ -552,6 +562,19 @@ async function testLoginFamilyList() {
     result.data.families[0].memberOpenids,
     undefined,
     '不应把成员 openid 数组返回客户端'
+  );
+  const detail = await expectCode(
+    login({ familyId: 'family-a' }),
+    0,
+    '登录可以返回指定家庭与成员详情'
+  );
+  assert.strictEqual(detail.data.members.length, 1);
+  assert.strictEqual(detail.data.members[0].nickname, '晚云');
+  assert.strictEqual(detail.data.family.name, '服务端家庭');
+  await expectCode(
+    login({ familyId: 'family-b' }),
+    403,
+    '不能读取未加入的家庭详情'
   );
 }
 
