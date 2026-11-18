@@ -504,13 +504,15 @@ async function testLoginFamilyList() {
       memberCount: 1,
       babyFoodEnabled: true,
       createdAt: new Date('2026-11-18')
-    }
-  ]);
-  await seed('family_members', [
+    },
     {
-      _id: 'member-a',
-      familyId: 'family-a',
-      openid: 'user-a'
+      _id: 'family-b',
+      name: '别人家的饭',
+      creatorOpenid: 'user-b',
+      memberOpenids: ['user-b'],
+      memberCount: 1,
+      babyFoodEnabled: false,
+      createdAt: new Date('2026-11-17')
     }
   ]);
 
