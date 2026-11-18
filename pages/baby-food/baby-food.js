@@ -98,8 +98,12 @@ Page({
   },
 
   async loadFoods() {
-    // 内置辅食对所有人生效，自定义辅食由数据库权限限制为仅本家庭可见
-    return db.getAll('baby_foods', { max: 1000 });
+    // 内置辅食 + 当前家庭自定义辅食统一由云函数返回，避免客户端权限导致空列表。
+    const data = await db.callFunction('addBabyFood', {
+      familyId: this.data.familyId,
+      action: 'list'
+    });
+    return (data && data.foods) || [];
   },
 
   /** 用「宝宝ID + 日期」做种子生成今日推荐（含换一道偏移） */

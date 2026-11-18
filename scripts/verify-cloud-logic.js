@@ -776,6 +776,50 @@ async function testManageDish() {
   assert.strictEqual(stores.dishes[customDishId], undefined);
 }
 
+async function testBabyFoodList() {
+  resetDatabase();
+  currentOpenid = 'user-a';
+  await seedFamilyContext();
+  await seed('baby_foods', [
+    {
+      _id: 'builtin-food',
+      name: '内置辅食',
+      category: '早餐',
+      minMonth: 6,
+      maxMonth: 24,
+      isCustom: false,
+      familyId: ''
+    },
+    {
+      _id: 'family-food',
+      name: '本家庭辅食',
+      category: '早餐',
+      minMonth: 6,
+      maxMonth: 24,
+      isCustom: true,
+      familyId: 'family-a'
+    },
+    {
+      _id: 'other-food',
+      name: '其他家庭辅食',
+      category: '早餐',
+      minMonth: 6,
+      maxMonth: 24,
+      isCustom: true,
+      familyId: 'family-b'
+    }
+  ]);
+
+  const addBabyFood = loadFunction('addBabyFood');
+  const result = await expectCode(
+    addBabyFood({ familyId: 'family-a', action: 'list' }),
+    0,
+    '可以读取当前家庭可见辅食'
+  );
+  const ids = result.data.foods.map((food) => food._id).sort();
+  assert.deepStrictEqual(ids, ['builtin-food', 'family-food']);
+}
+
 function testHomeOrderState() {
   const originalGetApp = global.getApp;
   const originalPage = global.Page;
@@ -857,6 +901,8 @@ async function run() {
     console.log('  ok   创建人解散家庭与关联数据清理');
     await testManageDish();
     console.log('  ok   自定义菜品增改删与家庭隔离');
+    await testBabyFoodList();
+    console.log('  ok   辅食列表服务端读取与家庭隔离');
     console.log('\n✅ 云函数核心规则测试全部通过\n');
   } finally {
     console.error = originalConsoleError;

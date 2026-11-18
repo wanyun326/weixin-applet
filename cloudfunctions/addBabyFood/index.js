@@ -14,6 +14,25 @@ exports.main = handler(async (event, openid) => {
   const { familyId, action = 'add' } = event;
   await assertMember(familyId, openid);
 
+  if (action === 'list') {
+    const foods = [];
+    for (let skip = 0; skip < 1000; skip += 100) {
+      // eslint-disable-next-line no-await-in-loop
+      const res = await db
+        .collection('baby_foods')
+        .skip(skip)
+        .limit(100)
+        .get();
+      foods.push(...res.data);
+      if (res.data.length < 100) break;
+    }
+    return ok({
+      foods: foods.filter(
+        (food) => !food.isCustom || food.familyId === familyId
+      )
+    });
+  }
+
   if (action === 'add') {
     const food = event.food || {};
     if (!food.name || !food.name.trim()) return fail('请填写辅食名称');
