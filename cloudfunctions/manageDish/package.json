@@ -1,0 +1,9 @@
+{
+  "name": "manageDish",
+  "version": "1.0.0",
+  "description": "家庭自定义菜品与菜品列表管理",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

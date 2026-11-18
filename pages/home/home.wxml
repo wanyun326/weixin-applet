@@ -6,7 +6,10 @@
         <text class="header__name">{{familyName}}</text>
         <text class="header__switch">切换 ▾</text>
       </view>
-      <text class="header__history" bindtap="goHistory">历史当餐</text>
+      <view class="header__tools">
+        <text class="header__manage" bindtap="goCustomMenu">自定义菜单</text>
+        <text class="header__history" bindtap="goHistory">历史当餐</text>
+      </view>
     </view>
     <view class="header__meal">
       <text wx:if="{{meal}}" class="header__meal-label">🍽️ {{mealLabel}}</text>

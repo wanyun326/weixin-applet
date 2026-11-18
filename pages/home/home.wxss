@@ -34,6 +34,19 @@
   background: rgba(255, 255, 255, 0.18);
 }
 
+.header__tools {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.header__manage {
+  font-size: 24rpx;
+  padding: 8rpx 20rpx;
+  border-radius: 24rpx;
+  background: rgba(255, 255, 255, 0.28);
+}
+
 .header__meal {
   display: flex;
   align-items: center;

@@ -82,10 +82,19 @@ async function assertMember(familyId, openid) {
     .where({ familyId, openid })
     .limit(1)
     .get();
-  if (!res.data.length) {
+  if (res.data.length) return res.data[0];
+
+  // 历史数据可能缺少 family_members 记录，家庭文档中的 memberOpenids 仍是权威来源。
+  const family = await getFamily(familyId);
+  if (!(family.memberOpenids || []).includes(openid)) {
     throw createError('你不是该家庭成员', 403);
   }
-  return res.data[0];
+  return {
+    familyId,
+    openid,
+    nickname: '成员',
+    avatar: ''
+  };
 }
 
 /**

@@ -1,5 +1,13 @@
 // 云函数：创建人解散家庭，并清理该家庭的关联数据
-const { db, ok, fail, createError, getFamily, handler } = require('./common');
+const {
+  cloud,
+  db,
+  ok,
+  fail,
+  createError,
+  getFamily,
+  handler
+} = require('./common');
 
 const RELATED_COLLECTIONS = [
   'family_members',
@@ -7,7 +15,8 @@ const RELATED_COLLECTIONS = [
   'orders',
   'operation_logs',
   'babies',
-  'baby_foods'
+  'baby_foods',
+  'dishes'
 ];
 
 /** 分批删除某家庭下的所有关联文档，兼容云数据库单次返回数量限制 */
@@ -33,6 +42,30 @@ async function removeFamilyDocuments(collectionName, familyId) {
   return removed;
 }
 
+async function cleanupDishImages(familyId) {
+  const dishes = [];
+  for (let skip = 0; skip < 1000; skip += 100) {
+    // eslint-disable-next-line no-await-in-loop
+    const dishRes = await db
+      .collection('dishes')
+      .where({ familyId })
+      .skip(skip)
+      .limit(100)
+      .get();
+    dishes.push(...dishRes.data);
+    if (dishRes.data.length < 100) break;
+  }
+  const fileList = dishes
+    .map((dish) => dish.imageUrl)
+    .filter((imageUrl) => /^cloud:\/\//.test(imageUrl || ''));
+  if (!fileList.length) return;
+  try {
+    await cloud.deleteFile({ fileList });
+  } catch (err) {
+    console.warn('清理解散家庭的菜品图片失败', err);
+  }
+}
+
 exports.main = handler(async (event, openid) => {
   const { familyId } = event;
   if (!familyId) return fail('缺少家庭信息');
@@ -43,6 +76,7 @@ exports.main = handler(async (event, openid) => {
   }
 
   const removed = {};
+  await cleanupDishImages(familyId);
   for (const collectionName of RELATED_COLLECTIONS) {
     // eslint-disable-next-line no-await-in-loop
     removed[collectionName] = await removeFamilyDocuments(

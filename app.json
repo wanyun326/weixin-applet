@@ -4,6 +4,7 @@
     "pages/family-edit/family-edit",
     "pages/home/home",
     "pages/menu/menu",
+    "pages/custom-menu/custom-menu",
     "pages/baby-food/baby-food",
     "pages/baby-manage/baby-manage",
     "pages/members/members",

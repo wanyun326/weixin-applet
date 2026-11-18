@@ -127,10 +127,11 @@ Page({
   },
 
   async loadDishes() {
-    if (this._dishesCache) return this._dishesCache;
-    const dishes = await db.getAll('dishes', { orderBy: 'sort', order: 'desc' });
-    this._dishesCache = dishes;
-    return dishes;
+    const data = await db.callFunction('manageDish', {
+      familyId: this.data.familyId,
+      action: 'list'
+    });
+    return (data && data.dishes) || [];
   },
 
   async loadOrderedDishes(meal, familyId) {
@@ -319,6 +320,10 @@ Page({
 
   goMenu() {
     wx.switchTab({ url: '/pages/menu/menu' });
+  },
+
+  goCustomMenu() {
+    wx.navigateTo({ url: '/pages/custom-menu/custom-menu' });
   },
 
   goSwitchFamily() {

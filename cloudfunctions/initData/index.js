@@ -89,6 +89,22 @@ async function clearCollection(name, where = null) {
   return removed;
 }
 
+/** 重置时只清理内置菜，保留所有家庭自定义菜品 */
+async function clearBuiltInDishes() {
+  const documents = [];
+  for (let skip = 0; skip < 1000; skip += 100) {
+    // eslint-disable-next-line no-await-in-loop
+    const res = await db.collection('dishes').skip(skip).limit(100).get();
+    documents.push(...res.data);
+    if (res.data.length < 100) break;
+  }
+  const builtIns = documents.filter((dish) => !dish.isCustom);
+  await Promise.all(
+    builtIns.map((dish) => db.collection('dishes').doc(dish._id).remove())
+  );
+  return builtIns.length;
+}
+
 const INSERT_BATCH_SIZE = 20;
 
 async function seed(name, list) {
@@ -113,7 +129,7 @@ exports.main = handler(async (event, openid) => {
   let clearedDishes = 0;
   let clearedFoods = 0;
   if (reset) {
-    clearedDishes = await clearCollection('dishes');
+    clearedDishes = await clearBuiltInDishes();
     // 重置只清理内置辅食，绝不能删除家庭自定义内容。
     clearedFoods = await clearCollection('baby_foods', { isCustom: false });
   }

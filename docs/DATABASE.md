@@ -9,7 +9,7 @@
 | `families` | 家庭 | 云函数 |
 | `family_members` | 家庭成员 | 云函数 |
 | `meals` | 当餐 | 云函数 |
-| `dishes` | 预设菜品库 | `initData`（管理员） |
+| `dishes` | 内置 + 家庭自定义菜品库 | `initData`（管理员）+ `manageDish` 云函数 |
 | `orders` | 点菜记录 | 云函数 |
 | `operation_logs` | 操作记录 | 云函数（只增不删） |
 | `babies` | 宝宝档案 | 小程序端（成员） |
@@ -58,7 +58,7 @@
 | `closedBy` / `closedByName` | string | 结束人 |
 | `closedAt` | date | 结束时间 |
 
-### dishes（预设菜品库）
+### dishes（菜品库）
 
 | 字段 | 类型 | 说明 |
 | --- | --- | --- |
@@ -68,6 +68,10 @@
 | `imageUrl` | string | 图片（占位图或云存储 fileID） |
 | `price` | number | 价格（界面不显示） |
 | `sort` | number | 排序权重 |
+| `isCustom` | boolean | 是否为家庭自定义菜品；内置菜为 `false` 或未设置 |
+| `familyId` | string | 自定义菜所属家庭；内置菜为空 |
+| `createdBy` | string | 自定义菜创建人 openid |
+| `createdAt` / `updatedAt` | date | 创建 / 更新时间 |
 
 ### orders（点菜记录）
 
@@ -154,10 +158,12 @@
 
 ```json
 {
-  "read": true,
+  "read": false,
   "write": false
 }
 ```
+
+> 菜品列表统一由 `manageDish` 云函数返回：内置菜 + 当前家庭自定义菜。客户端无需直接读取 `dishes`。
 
 **orders**
 

@@ -39,7 +39,7 @@ console.log('\n[3] 云函数齐全');
 [
   'login', 'createFamily', 'joinFamily', 'leaveFamily', 'removeMember',
   'deleteFamily', 'startMeal', 'closeMeal', 'addOrder', 'deleteOrder', 'updateOrderStatus',
-  'toggleBabyFood', 'addBabyFood', 'updateProfile', 'initData'
+  'toggleBabyFood', 'addBabyFood', 'updateProfile', 'manageDish', 'initData'
 ].forEach((fn) => {
   check(exists(`cloudfunctions/${fn}/index.js`), `cloudfunctions/${fn}/index.js`);
   check(exists(`cloudfunctions/${fn}/package.json`), `cloudfunctions/${fn}/package.json`);

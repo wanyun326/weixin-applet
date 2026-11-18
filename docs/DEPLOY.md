@@ -38,12 +38,12 @@ families  family_members  meals  dishes  orders  operation_logs  babies  baby_fo
 
 1. 在开发者工具中展开 `cloudfunctions/` 目录。
 2. 右键每个云函数目录 → 「上传并部署：云端安装依赖」。
-3. 需要部署的云函数共 15 个：
+3. 需要部署的云函数共 16 个：
 
 ```
 login  createFamily  joinFamily  leaveFamily  removeMember  deleteFamily
 startMeal  closeMeal  addOrder  deleteOrder  updateOrderStatus
-toggleBabyFood  addBabyFood  updateProfile  initData
+toggleBabyFood  addBabyFood  updateProfile  manageDish  initData
 ```
 
 > 每个云函数目录内含独立 `package.json` 与 `common.js`，无需额外配置。

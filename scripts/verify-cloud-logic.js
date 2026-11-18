@@ -320,10 +320,24 @@ async function testInitDataProtection() {
       familyId: 'family-a'
     }
   ]);
+  await seed('dishes', [
+    {
+      _id: 'custom-dish',
+      name: '家庭自定义菜',
+      category: '热销',
+      imageUrl: '/images/dishes/hot.png',
+      isCustom: true,
+      familyId: 'family-a'
+    }
+  ]);
   await expectCode(initData({ reset: true }), 0, '管理员可以重置内置数据');
   assert.ok(
     stores.baby_foods['custom-food'],
     '重置时不应删除家庭自定义辅食'
+  );
+  assert.ok(
+    stores.dishes['custom-dish'],
+    '重置时不应删除家庭自定义菜品'
   );
 }
 
@@ -553,7 +567,8 @@ async function testDeleteFamily() {
     'orders',
     'operation_logs',
     'babies',
-    'baby_foods'
+    'baby_foods',
+    'dishes'
   ];
   for (const collectionName of relatedCollections) {
     await seed(collectionName, [
@@ -588,6 +603,107 @@ async function testDeleteFamily() {
     403,
     '非创建人不能解散家庭'
   );
+}
+
+async function testManageDish() {
+  resetDatabase();
+  currentOpenid = 'user-a';
+  await seedFamilyContext();
+  delete stores.family_members['member-a'];
+  await seed('dishes', [
+    {
+      _id: 'builtin-dish',
+      name: '内置菜',
+      desc: '所有人可见',
+      category: '热销',
+      imageUrl: '/images/dishes/hot.png',
+      sort: 100
+    }
+  ]);
+
+  const manageDish = loadFunction('manageDish');
+  const initial = await expectCode(
+    manageDish({ familyId: 'family-a', action: 'list' }),
+    0,
+    '可以读取内置菜品'
+  );
+  assert.strictEqual(initial.data.dishes.length, 1);
+
+  const added = await expectCode(
+    manageDish({
+      familyId: 'family-a',
+      action: 'add',
+      dish: {
+        name: '家庭拿手菜',
+        desc: '只有本家庭可见',
+        category: '荤菜',
+        imageUrl: '/images/dishes/meat.png'
+      }
+    }),
+    0,
+    '可以添加家庭自定义菜品'
+  );
+  const customDishId = added.data.dish._id;
+  assert.ok(customDishId, '新增菜品应返回 ID');
+
+  await seed('families', [
+    {
+      _id: 'family-b',
+      name: '另一个家庭',
+      creatorOpenid: 'user-b',
+      inviteCode: 'BCD234',
+      memberOpenids: ['user-b'],
+      memberCount: 1
+    }
+  ]);
+  await seed('family_members', [
+    {
+      _id: 'member-b',
+      familyId: 'family-b',
+      openid: 'user-b',
+      nickname: '另一个成员'
+    }
+  ]);
+  currentOpenid = 'user-b';
+  const otherFamily = await expectCode(
+    manageDish({ familyId: 'family-b', action: 'list' }),
+    0,
+    '另一个家庭可以读取菜品列表'
+  );
+  assert.strictEqual(
+    otherFamily.data.dishes.some((dish) => dish._id === customDishId),
+    false,
+    '家庭自定义菜品不应跨家庭可见'
+  );
+
+  currentOpenid = 'user-a';
+  await expectCode(
+    manageDish({
+      familyId: 'family-a',
+      action: 'update',
+      dishId: customDishId,
+      dish: {
+        name: '家庭招牌菜',
+        desc: '更新后的描述',
+        category: '汤类',
+        imageUrl: '/images/dishes/soup.png'
+      }
+    }),
+    0,
+    '可以编辑家庭自定义菜品'
+  );
+  assert.strictEqual(stores.dishes[customDishId].name, '家庭招牌菜');
+
+  await expectCode(
+    manageDish({
+      familyId: 'family-a',
+      action: 'delete',
+      dishId: customDishId
+    }),
+    0,
+    '可以删除家庭自定义菜品'
+  );
+  assert.strictEqual(stores.dishes[customDishId], undefined);
 }
 
 function testHomeOrderState() {
@@ -656,6 +772,8 @@ async function run() {
     console.log('  ok   登录服务端返回家庭列表');
     await testDeleteFamily();
     console.log('  ok   创建人解散家庭与关联数据清理');
+    await testManageDish();
+    console.log('  ok   自定义菜品增改删与家庭隔离');
     console.log('\n✅ 云函数核心规则测试全部通过\n');
   } finally {
     console.error = originalConsoleError;

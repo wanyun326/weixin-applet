@@ -1,0 +1,104 @@
+<view class="page">
+  <view class="card intro">
+    <view class="flex-1">
+      <view class="intro__family">{{familyName}}</view>
+      <view class="intro__title">家庭自定义菜单</view>
+      <view class="muted intro__desc">这里添加的菜品只有本家庭成员可以看到和点选。</view>
+    </view>
+    <view class="btn btn--primary" bindtap="openAdd">＋ 添加菜品</view>
+  </view>
+
+  <view wx:if="{{loading}}" class="empty">
+    <text class="empty__emoji">⏳</text>
+    <text>加载中...</text>
+  </view>
+
+  <block wx:elif="{{dishes.length}}">
+    <view
+      wx:for="{{dishes}}"
+      wx:key="_id"
+      class="card custom-dish"
+    >
+      <image
+        class="custom-dish__img"
+        src="{{item.imageUrl || '/images/dishes/hot.png'}}"
+        mode="aspectFill"
+        data-url="{{item.imageUrl}}"
+        bindtap="previewImage"
+      ></image>
+      <view class="flex-1 custom-dish__body">
+        <view class="row gap-8">
+          <text class="custom-dish__name">{{item.name}}</text>
+          <text class="tag">{{item.category}}</text>
+        </view>
+        <text class="muted custom-dish__desc">{{item.desc || '暂无描述'}}</text>
+        <view class="custom-dish__actions">
+          <view class="btn btn--sm btn--ghost" data-index="{{index}}" bindtap="openEdit">编辑</view>
+          <view
+            class="btn btn--sm btn--danger {{deletingId === item._id ? 'btn--disabled' : ''}}"
+            data-index="{{index}}"
+            bindtap="onDelete"
+          >{{deletingId === item._id ? '删除中...' : '删除'}}</view>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <view wx:else class="empty">
+    <text class="empty__emoji">🍲</text>
+    <text>还没有自定义菜品，添加一道家里常吃的菜吧</text>
+  </view>
+
+  <view wx:if="{{showForm}}" class="mask" bindtap="closeForm">
+    <view class="sheet" catchtap="noop">
+      <view class="sheet__title">{{editingId ? '编辑自定义菜品' : '添加自定义菜品'}}</view>
+
+      <button class="image-upload" bindtap="onChooseImage">
+        <image class="image-upload__preview" src="{{form.imageUrl || '/images/dishes/hot.png'}}" mode="aspectFill"></image>
+        <view class="image-upload__hint">
+          <text>{{form.imageUrl ? '更换图片' : '上传菜品图片'}}</text>
+          <text class="muted">支持相册或拍照</text>
+        </view>
+      </button>
+
+      <view class="field">
+        <text class="field__label">菜品名称</text>
+        <input
+          class="field__input"
+          maxlength="20"
+          placeholder="例如：妈妈牌红烧肉"
+          value="{{form.name}}"
+          data-field="name"
+          bindinput="onInput"
+        />
+      </view>
+
+      <view class="field">
+        <text class="field__label">菜品分类</text>
+        <picker mode="selector" range="{{categories}}" value="{{categoryIndex}}" bindchange="onCategoryChange">
+          <view class="field__picker">{{form.category}} ▾</view>
+        </picker>
+      </view>
+
+      <view class="field">
+        <text class="field__label">菜品描述</text>
+        <input
+          class="field__input"
+          maxlength="80"
+          placeholder="简单描述口味或特色"
+          value="{{form.desc}}"
+          data-field="desc"
+          bindinput="onInput"
+        />
+      </view>
+
+      <view class="sheet__actions">
+        <view class="btn btn--ghost flex-1" bindtap="closeForm">取消</view>
+        <view
+          class="btn btn--primary flex-1 {{submitting ? 'btn--disabled' : ''}}"
+          bindtap="onSubmit"
+        >{{submitting ? '保存中...' : '保存'}}</view>
+      </view>
+    </view>
+  </view>
+</view>
