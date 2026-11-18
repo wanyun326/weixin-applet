@@ -4,6 +4,7 @@
  */
 const fs = require('fs');
 const path = require('path');
+const { spawnSync } = require('child_process');
 
 const ROOT = path.resolve(__dirname, '..');
 let errors = 0;
@@ -38,7 +39,7 @@ console.log('\n[3] 云函数齐全');
 [
   'login', 'createFamily', 'joinFamily', 'leaveFamily', 'removeMember',
   'startMeal', 'closeMeal', 'addOrder', 'deleteOrder', 'updateOrderStatus',
-  'toggleBabyFood', 'addBabyFood', 'initData'
+  'toggleBabyFood', 'addBabyFood', 'updateProfile', 'initData'
 ].forEach((fn) => {
   check(exists(`cloudfunctions/${fn}/index.js`), `cloudfunctions/${fn}/index.js`);
   check(exists(`cloudfunctions/${fn}/package.json`), `cloudfunctions/${fn}/package.json`);
@@ -81,6 +82,14 @@ check(a.some((name, i) => name !== nextDay[i]), '第二天可能换新（至少�
 const swapped = recommend.recommendDaily(foods, { ...opts, saltMap: { 早餐: 1 } }).map((r) => (r.food ? r.food.name : null));
 check(a[0] !== undefined, '推荐结果非空');
 check(swapped[0] !== a[0] || foods.filter((f) => f.category === '早餐' && 8 >= f.minMonth && 8 <= f.maxMonth).length <= 1, '换一道会切换候选');
+
+console.log('\n[6] 云函数核心规则');
+const cloudLogic = spawnSync(
+  process.execPath,
+  [path.join(ROOT, 'scripts/verify-cloud-logic.js')],
+  { stdio: 'inherit' }
+);
+check(cloudLogic.status === 0, '云函数权限、事务与首页已点状态');
 
 console.log(errors === 0 ? '\n✅ 全部检查通过\n' : `\n❌ 共 ${errors} 项未通过\n`);
 process.exit(errors === 0 ? 0 : 1);

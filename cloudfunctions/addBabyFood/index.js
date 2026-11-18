@@ -52,12 +52,31 @@ exports.main = handler(async (event, openid) => {
 
   if (action === 'update') {
     const patch = event.food || {};
+    const nextCategory =
+      patch.category !== undefined ? patch.category : food.category;
+    const nextMinMonth =
+      patch.minMonth !== undefined
+        ? Number(patch.minMonth) || 0
+        : food.minMonth;
+    const nextMaxMonth =
+      patch.maxMonth !== undefined
+        ? Number(patch.maxMonth) || 36
+        : food.maxMonth;
+    const nextName =
+      patch.name !== undefined ? String(patch.name).trim() : food.name;
+    if (!nextName) return fail('请填写辅食名称');
+    if (!CATEGORIES.includes(nextCategory)) return fail('辅食分类不正确');
+    if (nextMaxMonth < nextMinMonth) {
+      return fail('最大月龄不能小于最小月龄');
+    }
+
     const data = {};
     ['name', 'imageUrl', 'category', 'nutrition'].forEach((key) => {
       if (patch[key] !== undefined) data[key] = patch[key];
     });
-    if (patch.minMonth !== undefined) data.minMonth = Number(patch.minMonth) || 0;
-    if (patch.maxMonth !== undefined) data.maxMonth = Number(patch.maxMonth) || 36;
+    if (patch.name !== undefined) data.name = nextName;
+    if (patch.minMonth !== undefined) data.minMonth = nextMinMonth;
+    if (patch.maxMonth !== undefined) data.maxMonth = nextMaxMonth;
     if (Array.isArray(patch.ingredients)) data.ingredients = patch.ingredients;
     if (Array.isArray(patch.steps)) data.steps = patch.steps;
     await db.collection('baby_foods').doc(foodId).update({ data });

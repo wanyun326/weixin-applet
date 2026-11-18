@@ -1,71 +1,94 @@
-// 云函数：点菜（校验当餐进行中；同一人重复点同一道菜合并数量）+ 写日志
+// 云函数：点菜（校验当餐进行中；同一道菜每餐只能点一次）+ 写日志
 const {
   db,
-  _,
   ok,
   fail,
+  createError,
+  getDocOrNull,
+  getFamilyMeal,
+  stableDocId,
   serverDate,
   assertMember,
-  writeLog,
+  buildLogData,
   handler
 } = require('./common');
 
 exports.main = handler(async (event, openid) => {
-  const { familyId, mealId, dishId } = event;
-  if (!mealId || !dishId) return fail('参数不完整');
+  const { familyId, mealId, dishId, action } = event;
+  if (!familyId || !mealId) return fail('参数不完整');
   const member = await assertMember(familyId, openid);
   const operatorName = member.nickname || '成员';
   const operatorAvatar = member.avatar || '';
 
-  const meal = await db.collection('meals').doc(mealId).get().catch(() => null);
-  if (!meal || !meal.data) return fail('当餐不存在');
-  if (meal.data.status !== 'active') return fail('这一餐已结束，不能再点菜');
+  if (action === 'list') {
+    await getFamilyMeal(familyId, mealId);
+    const orderRes = await db
+      .collection('orders')
+      .where({ familyId, mealId })
+      .limit(1000)
+      .get();
+    const dishIds = [];
+    orderRes.data.forEach((order) => {
+      if (order.dishId && dishIds.indexOf(order.dishId) === -1) {
+        dishIds.push(order.dishId);
+      }
+    });
+    return ok({
+      dishIds,
+      orders: orderRes.data.map((order) => ({
+        _id: order._id,
+        dishId: order.dishId,
+        dishName: order.dishName,
+        dishImage: order.dishImage,
+        status: order.status,
+        orderedByName: order.orderedByName,
+        createdAt: order.createdAt,
+        updatedAt: order.updatedAt
+      }))
+    });
+  }
 
-  const dishRes = await db.collection('dishes').doc(dishId).get().catch(() => null);
-  if (!dishRes || !dishRes.data) return fail('菜品不存在');
-  const dish = dishRes.data;
+  if (!dishId) return fail('参数不完整');
 
-  // 同一人、同一餐、同一道菜、仍处于待做：合并数量
-  const existing = await db
+  await getFamilyMeal(familyId, mealId, {
+    requireActive: true
+  });
+  const legacyExisting = await db
     .collection('orders')
-    .where({ familyId, mealId, dishId, orderedBy: openid, status: 'pending' })
+    .where({ familyId, mealId, dishId })
     .limit(1)
     .get();
 
-  let orderId;
-  if (existing.data.length) {
-    orderId = existing.data[0]._id;
-    await db.collection('orders').doc(orderId).update({
-      data: { quantity: _.inc(1), updatedAt: serverDate() }
-    });
-  } else {
-    const add = await db.collection('orders').add({
-      data: {
-        familyId,
-        mealId,
-        dishId,
-        dishName: dish.name,
-        dishImage: dish.imageUrl,
-        orderedBy: openid,
-        orderedByName: operatorName,
-        quantity: 1,
-        status: 'pending',
-        cookingBy: '',
-        cookingByName: '',
-        doneBy: '',
-        doneByName: '',
-        createdAt: serverDate(),
-        updatedAt: serverDate()
-      }
-    });
-    orderId = add._id;
+  if (legacyExisting.data.length) {
+    return fail('这道菜已经点过了', 2);
   }
 
-  await writeLog(familyId, mealId, {
+  const orderId = stableDocId('order', [familyId, mealId, dishId]);
+  const logId = stableDocId('log', [orderId, openid, Date.now()]);
+  const now = serverDate();
+  const order = {
+    familyId,
+    mealId,
+    dishId,
+    dishName: '',
+    dishImage: '',
+    orderedBy: openid,
+    orderedByName: operatorName,
+    quantity: 1,
+    status: 'pending',
+    cookingBy: '',
+    cookingByName: '',
+    doneBy: '',
+    doneByName: '',
+    createdAt: now,
+    updatedAt: now
+  };
+
+  const log = buildLogData(familyId, mealId, {
     orderId,
     action: 'add',
     dishId,
-    dishName: dish.name,
+    dishName: '',
     orderedBy: openid,
     orderedByName: operatorName,
     orderStatusBefore: 'pending',
@@ -74,5 +97,40 @@ exports.main = handler(async (event, openid) => {
     operatorAvatar
   });
 
-  return ok({ orderId });
+  // 确定性订单 ID 与事务共同兜底：并发点同一道菜只会成功一次。
+  await db.runTransaction(async (transaction) => {
+    await getFamilyMeal(familyId, mealId, {
+      requireActive: true,
+      source: transaction
+    });
+    const dish = await getDocOrNull(
+      transaction.collection('dishes'),
+      dishId
+    );
+    if (!dish) throw createError('菜品不存在', 404);
+
+    const existing = await getDocOrNull(
+      transaction.collection('orders'),
+      orderId
+    );
+    if (existing) throw createError('这道菜已经点过了', 2);
+
+    order.dishName = dish.name;
+    order.dishImage = dish.imageUrl;
+    log.dishName = dish.name;
+    await transaction.collection('orders').doc(orderId).set({
+      data: order
+    });
+    await transaction.collection('operation_logs').doc(logId).set({
+      data: log
+    });
+  });
+
+  return ok({
+    orderId,
+    dishId,
+    dishName: order.dishName,
+    dishImage: order.dishImage,
+    status: 'pending'
+  });
 });

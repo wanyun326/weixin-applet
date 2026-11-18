@@ -1,5 +1,13 @@
 // 云函数：创建人移出成员
-const { db, _, ok, fail, assertCreator, handler } = require('./common');
+const {
+  db,
+  ok,
+  fail,
+  createError,
+  getDocOrNull,
+  assertCreator,
+  handler
+} = require('./common');
 
 exports.main = handler(async (event, openid) => {
   const { familyId, memberOpenid } = event;
@@ -8,20 +16,38 @@ exports.main = handler(async (event, openid) => {
   await assertCreator(familyId, openid);
   if (memberOpenid === openid) return fail('不能移出自己');
 
-  const del = await db
+  const memberRes = await db
     .collection('family_members')
     .where({ familyId, openid: memberOpenid })
-    .remove();
-  const removed = del.stats ? del.stats.removed : 0;
+    .limit(20)
+    .get();
+  const memberIds = memberRes.data.map((member) => member._id);
 
-  if (removed > 0) {
-    await db.collection('families').doc(familyId).update({
+  const removed = await db.runTransaction(async (transaction) => {
+    const currentFamily = await getDocOrNull(
+      transaction.collection('families'),
+      familyId
+    );
+    if (!currentFamily) throw createError('家庭不存在', 404);
+    const currentMembers = currentFamily.memberOpenids || [];
+    if (!currentMembers.includes(memberOpenid)) return 0;
+
+    for (const memberId of memberIds) {
+      // eslint-disable-next-line no-await-in-loop
+      await transaction
+        .collection('family_members')
+        .doc(memberId)
+        .remove();
+    }
+    const nextMembers = currentMembers.filter((item) => item !== memberOpenid);
+    await transaction.collection('families').doc(familyId).update({
       data: {
-        memberOpenids: _.pull(memberOpenid),
-        memberCount: _.inc(-removed)
+        memberOpenids: nextMembers,
+        memberCount: nextMembers.length
       }
     });
-  }
+    return memberIds.length;
+  });
 
   return ok({ removed });
 });

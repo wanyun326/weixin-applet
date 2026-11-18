@@ -72,7 +72,17 @@ Page({
       });
     } catch (err) {
       this.setData({ loading: false });
-      wx.showToast({ title: err.message, icon: 'none' });
+      const message = (err && err.message) || '';
+      if (/cannot find document|document.*not exist|permission/i.test(message)) {
+        store.clearCurrentFamily();
+        app.globalData.currentFamilyId = '';
+        app.globalData.currentFamilyName = '';
+        app.globalData.babyFoodEnabled = false;
+        wx.showToast({ title: '当前家庭已失效，请重新选择', icon: 'none' });
+        setTimeout(() => wx.reLaunch({ url: '/pages/index/index' }), 800);
+        return;
+      }
+      wx.showToast({ title: message || '家庭信息加载失败', icon: 'none' });
     }
   },
 

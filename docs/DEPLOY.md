@@ -24,7 +24,7 @@ module.exports = {
 
 ## 3. 创建数据库集合
 
-在「云开发控制台 → 数据库」中新建以下 8 个集合：
+推荐先完成第 4 步部署云函数，再运行 `initData` 自动创建缺失集合。若不想使用云函数自动创建，也可以在「云开发控制台 → 数据库」中手动新建以下 8 个集合：
 
 ```
 families  family_members  meals  dishes  orders  operation_logs  babies  baby_foods
@@ -38,27 +38,56 @@ families  family_members  meals  dishes  orders  operation_logs  babies  baby_fo
 
 1. 在开发者工具中展开 `cloudfunctions/` 目录。
 2. 右键每个云函数目录 → 「上传并部署：云端安装依赖」。
-3. 需要部署的云函数共 13 个：
+3. 需要部署的云函数共 14 个：
 
 ```
 login  createFamily  joinFamily  leaveFamily  removeMember
 startMeal  closeMeal  addOrder  deleteOrder  updateOrderStatus
-toggleBabyFood  addBabyFood  initData
+toggleBabyFood  addBabyFood  updateProfile  initData
 ```
 
 > 每个云函数目录内含独立 `package.json` 与 `common.js`，无需额外配置。
 
 ## 5. 初始化数据
 
-1. 右键 `cloudfunctions/initData` → 「云端测试」。
-2. 测试参数传入 `{}`（首次写入预设菜品与辅食）。
-3. 如需**重置**，传 `{ "reset": true }`（会先清空 `dishes` 与 `baby_foods` 再写入）。
+1. 先运行一次 `login` 云函数取得管理员自己的 `openid`。
+2. 在「云开发 → 云函数 → initData → 函数配置 → 环境变量」添加：
+
+```
+INIT_ADMIN_OPENIDS=管理员openid1,管理员openid2
+```
+
+3. 右键 `cloudfunctions/initData` → 「云端测试」。
+4. 测试参数传入 `{}`（首次写入预设菜品与辅食）。
+5. 如需**重置**，传 `{ "reset": true }`。只会重写内置菜品与内置辅食，家庭自定义辅食不会被删除。
+
+> `initData` 未配置管理员或调用人不在白名单时会返回 403，这是安全保护，不是部署故障。
 
 返回示例：
 
 ```json
-{ "code": 0, "data": { "dishesInserted": 30, "foodsInserted": 16 } }
+{
+  "code": 0,
+  "data": {
+    "createdCollections": [
+      "families",
+      "family_members",
+      "meals",
+      "dishes",
+      "orders",
+      "operation_logs",
+      "babies",
+      "baby_foods"
+    ],
+    "dishesInserted": 30,
+    "foodsInserted": 16
+  }
+}
 ```
+
+`createdCollections` 只包含本次新建的集合；重复运行会自动跳过已存在的集合。
+
+> 如果首次运行仍提示 `Invoking task timed out after 3 seconds`，在「云开发 → 云函数 → initData → 函数配置」中把超时时间临时调整为 20 秒后重试。
 
 ## 6. 运行
 
@@ -73,6 +102,8 @@ toggleBabyFood  addBabyFood  initData
 - [ ] `config.js` 已填写正式环境 ID；
 - [ ] 所有集合安全规则已按文档配置；
 - [ ] `families.inviteCode` 唯一索引已建立；
+- [ ] `orders.familyId + mealId + dishId` 唯一索引已建立；
+- [ ] `initData` 已配置 `INIT_ADMIN_OPENIDS` 环境变量；
 - [ ] 占位图已替换为真实照片（上传云存储并更新 `imageUrl`）；
 - [ ] 在「开发设置 → 服务器域名」无需配置（本项目不含外部请求）；
 - [ ] 已在小程序后台补充隐私协议（涉及头像、昵称、相册等）。

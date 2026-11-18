@@ -1,5 +1,12 @@
 // 云函数：创建家庭（创建人自动成为成员）
-const { db, _, ok, fail, serverDate, handler } = require('./common');
+const {
+  db,
+  ok,
+  fail,
+  serverDate,
+  stableDocId,
+  handler
+} = require('./common');
 
 /** 生成唯一邀请码（6 位，去掉易混淆字符） */
 async function generateInviteCode() {
@@ -24,29 +31,38 @@ exports.main = handler(async (event, openid) => {
   const avatar = event.avatar || '';
   const inviteCode = await generateInviteCode();
   const now = serverDate();
+  const familyId = stableDocId('family', [
+    openid,
+    Date.now(),
+    Math.random()
+  ]);
+  const memberId = stableDocId('member', [familyId, openid]);
 
-  const familyAdd = await db.collection('families').add({
-    data: {
-      name,
-      creatorOpenid: openid,
-      inviteCode,
-      babyFoodEnabled: false,
-      // memberOpenids 用于数据库安全规则做成员校验
-      memberOpenids: [openid],
-      memberCount: 1,
-      createdAt: now
-    }
-  });
-  const familyId = familyAdd._id;
-
-  await db.collection('family_members').add({
-    data: {
-      familyId,
-      openid,
-      nickname,
-      avatar,
-      joinedAt: now
-    }
+  // 家庭与创建人成员记录在同一事务中写入，避免出现有家庭但无成员的数据。
+  await db.runTransaction(async (transaction) => {
+    await transaction.collection('families').doc(familyId).set({
+      data: {
+        name,
+        creatorOpenid: openid,
+        inviteCode,
+        babyFoodEnabled: false,
+        // memberOpenids 用于数据库安全规则做成员校验
+        memberOpenids: [openid],
+        memberCount: 1,
+        activeMealId: '',
+        activeMealLabel: '',
+        createdAt: now
+      }
+    });
+    await transaction.collection('family_members').doc(memberId).set({
+      data: {
+        familyId,
+        openid,
+        nickname,
+        avatar,
+        joinedAt: now
+      }
+    });
   });
 
   return ok({

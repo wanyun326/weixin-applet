@@ -5,7 +5,7 @@
 module.exports = {
   // 云开发环境 ID。留空字符串时使用当前账号的默认环境。
   // 在「微信开发者工具 -> 云开发 -> 设置 -> 环境 ID」中查看。
-  cloudEnvId: '',
+  cloudEnvId: 'cloud1-d7glj54fv230504ee',
 
   // 业务常量
   ORDER_STATUS: {

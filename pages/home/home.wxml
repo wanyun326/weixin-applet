@@ -27,6 +27,26 @@
 
   <!-- 菜品 -->
   <block wx:if="{{meal}}">
+    <!-- 当前当餐已点清单：始终展示菜名，切换分类也不会丢 -->
+    <view wx:if="{{orderedDishes.length}}" class="card picked">
+      <view class="picked__head">
+        <view class="picked__title">本餐已点</view>
+        <text class="picked__count">{{orderedDishes.length}} 道</text>
+      </view>
+      <scroll-view class="picked__scroll" scroll-x enable-flex>
+        <view class="picked__list">
+          <view
+            wx:for="{{orderedDishes}}"
+            wx:key="dishId"
+            class="picked__item picked__item--{{item.status}}"
+          >
+            <text class="picked__name">{{item.dishName}}</text>
+            <text class="picked__status">{{item.statusText}}</text>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
     <scroll-view class="cats" scroll-x enable-flex>
       <view
         wx:for="{{categories}}"
@@ -40,13 +60,27 @@
     <view wx:if="{{loading}}" class="empty"><text class="empty__emoji">⏳</text><text>加载中...</text></view>
 
     <block wx:elif="{{dishes.length}}">
-      <view wx:for="{{dishes}}" wx:key="_id" class="card dish">
+      <view
+        wx:for="{{dishes}}"
+        wx:key="_id"
+        class="card dish {{item.ordered ? 'dish--ordered' : ''}}"
+      >
         <image class="dish__img" src="{{item.imageUrl}}" mode="aspectFill" lazy-load></image>
         <view class="flex-1 dish__info">
-          <text class="dish__name">{{item.name}}</text>
-          <text class="muted dish__desc">{{item.desc}}</text>
+          <view class="dish__heading">
+            <text class="dish__name">{{item.name}}</text>
+            <text wx:if="{{item.ordered}}" class="dish__badge">✓ 已点</text>
+          </view>
+          <text wx:if="{{item.ordered}}" class="dish__ordered-desc">
+            已加入本餐菜单 · {{item.orderStatusText}}
+          </text>
+          <text wx:else class="muted dish__desc">{{item.desc}}</text>
         </view>
-        <view class="btn btn--sm btn--primary dish__add" data-id="{{item._id}}" bindtap="onAddDish">＋ 加一道</view>
+        <view
+          class="btn btn--sm {{item.ordered ? 'dish__add--selected' : 'btn--primary'}} dish__add"
+          data-id="{{item._id}}"
+          bindtap="onAddDish"
+        >{{item.ordered ? '已点 ✓' : '＋ 加一道'}}</view>
       </view>
     </block>
 

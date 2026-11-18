@@ -103,6 +103,8 @@ Page({
         avatar = await this.uploadAvatar(avatar);
       }
       const profile = { nickname, avatar };
+      // 资料不只保存在本机，还要同步到所有家庭成员记录，避免成员页继续显示旧昵称。
+      await db.callFunction('updateProfile', profile);
       store.setProfile(profile);
       app.globalData.userInfo = profile;
       this.setData({ profile, editingProfile: false, saving: false });

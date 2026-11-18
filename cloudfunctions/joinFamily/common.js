@@ -3,11 +3,57 @@
  * 统一：初始化、返回格式、成员/创建人校验、操作日志、异常包裹
  */
 const cloud = require('wx-server-sdk');
+const crypto = require('crypto');
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 
 const db = cloud.database();
 const _ = db.command;
+
+/** 构造带业务错误码的异常 */
+function createError(message, code = 500) {
+  const error = new Error(message);
+  error.code = code;
+  return error;
+}
+
+/** 判断云数据库文档不存在 */
+function isDocumentMissing(err) {
+  const text = [
+    err && err.errCode,
+    err && err.errMsg,
+    err && err.message
+  ]
+    .filter(Boolean)
+    .join(' ');
+  return /DOCUMENT_NOT_FOUND|cannot find document|document.*not exist|not exist/i.test(
+    text
+  );
+}
+
+/** 读取文档；不存在时返回 null，其他错误继续抛出 */
+async function getDocOrNull(collection, docId) {
+  try {
+    const res = await collection.doc(docId).get();
+    return res && res.data ? res.data : null;
+  } catch (err) {
+    if (isDocumentMissing(err)) return null;
+    throw err;
+  }
+}
+
+/**
+ * 生成稳定且短小的文档 ID。
+ * 用于把“同一家庭同一餐同一道菜”映射到同一个订单文档，避免并发重复写入。
+ */
+function stableDocId(prefix, values) {
+  const digest = crypto
+    .createHash('sha256')
+    .update(values.map((value) => String(value)).join('|'))
+    .digest('hex')
+    .slice(0, 24);
+  return `${prefix}_${digest}`;
+}
 
 /** 成功返回 */
 function ok(data = {}) {
@@ -29,9 +75,7 @@ function serverDate() {
  */
 async function assertMember(familyId, openid) {
   if (!familyId) {
-    const e = new Error('缺少家庭信息');
-    e.code = 400;
-    throw e;
+    throw createError('缺少家庭信息', 400);
   }
   const res = await db
     .collection('family_members')
@@ -39,9 +83,7 @@ async function assertMember(familyId, openid) {
     .limit(1)
     .get();
   if (!res.data.length) {
-    const e = new Error('你不是该家庭成员');
-    e.code = 403;
-    throw e;
+    throw createError('你不是该家庭成员', 403);
   }
   return res.data[0];
 }
@@ -52,30 +94,62 @@ async function assertMember(familyId, openid) {
 async function assertCreator(familyId, openid) {
   const family = await getFamily(familyId);
   if (family.creatorOpenid !== openid) {
-    const e = new Error('只有家庭创建人可以执行此操作');
-    e.code = 403;
-    throw e;
+    throw createError('只有家庭创建人可以执行此操作', 403);
   }
   return family;
 }
 
 /** 读取家庭文档，不存在则抛错 */
 async function getFamily(familyId) {
+  if (!familyId) throw createError('缺少家庭信息', 400);
   try {
     const res = await db.collection('families').doc(familyId).get();
     if (!res.data) {
-      const e = new Error('家庭不存在');
-      e.code = 404;
-      throw e;
+      throw createError('家庭不存在', 404);
     }
     return res.data;
   } catch (err) {
     if (err && (err.errCode === -1 || /not exist/i.test(err.errMsg || ''))) {
-      const e = new Error('家庭不存在');
-      e.code = 404;
-      throw e;
+      throw createError('家庭不存在', 404);
     }
     throw err;
+  }
+}
+
+/**
+ * 读取当餐并校验家庭归属。
+ * @param {string} familyId
+ * @param {string} mealId
+ * @param {object} options { requireActive, source }
+ */
+async function getFamilyMeal(familyId, mealId, options = {}) {
+  const { requireActive = false, source = db } = options;
+  if (!familyId || !mealId) throw createError('缺少当餐信息', 400);
+  const meal = await getDocOrNull(source.collection('meals'), mealId);
+  if (!meal) throw createError('当餐不存在', 404);
+  if (meal.familyId !== familyId) {
+    throw createError('无权操作其他家庭的当餐', 403);
+  }
+  if (requireActive && meal.status !== 'active') {
+    throw createError('这一餐已结束，不能再操作', 409);
+  }
+  return meal;
+}
+
+/** 读取管理员 openid 白名单；未配置时默认拒绝执行敏感操作 */
+function assertAdmin(openid) {
+  const admins = (process.env.INIT_ADMIN_OPENIDS || '')
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
+  if (!admins.length) {
+    throw createError(
+      'initData 未配置管理员，请先设置云函数环境变量 INIT_ADMIN_OPENIDS',
+      403
+    );
+  }
+  if (!openid || !admins.includes(openid)) {
+    throw createError('只有管理员可以执行初始化操作', 403);
   }
 }
 
@@ -87,6 +161,14 @@ async function writeLog(familyId, mealId, payload) {
       payload
     )
   });
+}
+
+/** 生成日志数据，供事务内原子写入 */
+function buildLogData(familyId, mealId, payload) {
+  return Object.assign(
+    { familyId, mealId, createdAt: serverDate() },
+    payload
+  );
 }
 
 /** 统一包裹云函数入口：自动注入 openid 并捕获异常 */
@@ -108,10 +190,17 @@ module.exports = {
   _,
   ok,
   fail,
+  createError,
+  isDocumentMissing,
+  getDocOrNull,
+  stableDocId,
   serverDate,
   assertMember,
   assertCreator,
   getFamily,
+  getFamilyMeal,
+  assertAdmin,
   writeLog,
+  buildLogData,
   handler
 };

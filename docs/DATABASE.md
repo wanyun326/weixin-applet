@@ -28,9 +28,11 @@
 | `babyFoodEnabled` | boolean | 是否开启辅食推荐 |
 | `memberOpenids` | array | 成员 openid 数组（**安全规则用**） |
 | `memberCount` | number | 成员数（列表展示用） |
+| `activeMealId` | string | 当前进行中的当餐 ID（家庭级并发锁，空闲时为空） |
+| `activeMealLabel` | string | 当前进行中的当餐名称（快捷展示用） |
 | `createdAt` | date | 创建时间 |
 
-> `memberOpenids` 与 `memberCount` 是为了让数据库安全规则能够判断「是否为该家庭成员」，由 `createFamily` / `joinFamily` / `leaveFamily` / `removeMember` 云函数维护。
+> `memberOpenids` 与 `memberCount` 是为了让数据库安全规则能够判断「是否为该家庭成员」，由 `createFamily` / `joinFamily` / `leaveFamily` / `removeMember` 云函数维护；`activeMealId` 由 `startMeal` / `closeMeal` 维护。
 
 ### family_members（家庭成员）
 
@@ -71,11 +73,11 @@
 
 | 字段 | 类型 | 说明 |
 | --- | --- | --- |
-| `_id` | string | 订单 ID |
+| `_id` | string | 订单 ID；新订单由 `familyId + mealId + dishId` 稳定生成，防止并发重复 |
 | `familyId` / `mealId` | string | 所属家庭 / 当餐 |
 | `dishId` / `dishName` / `dishImage` | string | 菜品信息（后两者冗余） |
 | `orderedBy` / `orderedByName` | string | 点菜人 |
-| `quantity` | number | 数量（同人同菜合并） |
+| `quantity` | number | 数量（当前固定为 1，保留字段兼容） |
 | `status` | string | `pending` / `cooking` / `done` |
 | `cookingBy` / `cookingByName` | string | 开始做的人 |
 | `doneBy` / `doneByName` | string | 完成的人 |
@@ -205,6 +207,7 @@
 | `meals` | `familyId` + `status` | 进行中当餐 / 历史当餐 |
 | `orders` | `familyId` + `mealId` | 当餐订单 / 实时监听 |
 | `orders` | `familyId` + `mealId` + `status` | 状态分组 |
+| `orders` | `familyId` + `mealId` + `dishId`（唯一） | 历史数据兜底，禁止同餐重复菜品 |
 | `operation_logs` | `familyId` + `mealId` + `createdAt` | 操作记录 |
 | `babies` | `familyId` | 宝宝列表 |
 | `baby_foods` | `familyId` + `isCustom` | 自定义辅食 |

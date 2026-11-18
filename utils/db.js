@@ -59,7 +59,9 @@ function callFunction(name, data = {}) {
         if (result.code === 0) {
           resolve(result.data);
         } else {
-          reject(new Error(result.message || '操作失败'));
+          const error = new Error(result.message || '操作失败');
+          error.code = result.code;
+          reject(error);
         }
       },
       fail(err) {
