@@ -50,16 +50,34 @@ toggleBabyFood  addBabyFood  updateProfile  initData
 
 ## 5. 初始化数据
 
-1. 先运行一次 `login` 云函数取得管理员自己的 `openid`。
-2. 在「云开发 → 云函数 → initData → 函数配置 → 环境变量」添加：
+> 云开发控制台的「测试」没有真实的小程序用户上下文，`wxContext.OPENID` 会为空，因此不能用来获取 openid 或执行受管理员保护的 `initData`。下面的调用必须在小程序运行环境中进行。
+
+1. 先点击开发者工具顶部「编译」，让小程序正常进入首页。
+2. 打开「调试器 → Console」，执行：
+
+```js
+wx.cloud.callFunction({ name: 'login' }).then((res) => {
+  console.log('OPENID=', res.result.data.openid);
+});
+```
+
+3. 在 Console 中复制打印出的 `OPENID`。
+4. 在「云开发 → 云函数 → initData → 函数配置 → 环境变量」添加：
 
 ```
 INIT_ADMIN_OPENIDS=管理员openid1,管理员openid2
 ```
 
-3. 右键 `cloudfunctions/initData` → 「云端测试」。
-4. 测试参数传入 `{}`（首次写入预设菜品与辅食）。
-5. 如需**重置**，传 `{ "reset": true }`。只会重写内置菜品与内置辅食，家庭自定义辅食不会被删除。
+5. 保存环境变量后，在小程序 Console 中执行：
+
+```js
+wx.cloud.callFunction({ name: 'initData', data: {} }).then((res) => {
+  console.log('INIT_RESULT=', JSON.stringify(res.result));
+});
+```
+
+6. 首次初始化会自动创建缺失集合，并写入 30 道预设菜品与 16 条辅食。
+7. 如需**重置**，把调用参数改为 `{ reset: true }`。只会重写内置菜品与内置辅食，家庭自定义辅食不会被删除。
 
 > `initData` 未配置管理员或调用人不在白名单时会返回 403，这是安全保护，不是部署故障。
 

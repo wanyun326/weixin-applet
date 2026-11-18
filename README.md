@@ -51,7 +51,7 @@
 1. 用微信开发者工具打开本目录，填入自己的 AppID。
 2. 开通云开发，把环境 ID 填进 `config.js` 的 `cloudEnvId`。
 3. 上传部署 `cloudfunctions/` 下的全部云函数。
-4. 为 `initData` 配置 `INIT_ADMIN_OPENIDS` 环境变量后运行一次：自动创建缺失的 8 个集合，并写入预设菜品与辅食。
+4. 编译小程序，在调试器 Console 调用 `login` 取得当前用户 openid；配置 `INIT_ADMIN_OPENIDS` 后，再从 Console 调用一次 `initData`，自动创建缺失的 8 个集合并写入预设菜品与辅食。
 5. 在云开发控制台按 DATABASE 文档配置集合权限与索引。
 6. 编译运行，首页完善资料 → 创建家庭 → 开始点菜。
 
