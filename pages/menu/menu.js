@@ -175,24 +175,10 @@ Page({
   },
 
   onCloseMeal() {
-    wx.showModal({
-      title: '结束这一餐',
-      content: '结束后所有订单将被冻结，不能再修改。确定结束吗？',
-      confirmText: '结束',
-      success: async (res) => {
-        if (!res.confirm) return;
-        try {
-          await db.callFunction('closeMeal', {
-            familyId: this.data.familyId,
-            mealId: this.data.mealId
-          });
-          wx.showToast({ title: '这一餐已结束', icon: 'success' });
-          this.closeWatch();
-          this.setData({ hasMeal: false, mealId: '', mealLabel: '', pending: [], cooking: [], done: [] });
-        } catch (err) {
-          wx.showToast({ title: err.message, icon: 'none' });
-        }
-      }
+    wx.navigateTo({
+      url: `/pages/meal-record/meal-record?mealId=${this.data.mealId}&mealLabel=${encodeURIComponent(
+        this.data.mealLabel
+      )}`
     });
   },
 

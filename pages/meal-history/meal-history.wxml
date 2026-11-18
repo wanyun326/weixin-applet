@@ -24,6 +24,30 @@
           </view>
         </block>
         <view wx:else class="muted meal__loading">这一餐没有点菜记录</view>
+
+        <view wx:if="{{item.postNote}}" class="meal-record">
+          <view class="meal-record__label">餐后记录</view>
+          <view class="meal-record__note">{{item.postNote}}</view>
+          <view wx:if="{{item.recordedByName}}" class="muted meal-record__by">
+            {{item.recordedByName}} · {{item.recordedAtText}}
+          </view>
+        </view>
+
+        <view wx:if="{{item.photoFileIDs.length}}" class="meal-photos">
+          <image
+            wx:for="{{item.photoFileIDs}}"
+            wx:for-item="photo"
+            wx:for-index="photoIndex"
+            wx:key="*this"
+            class="meal-photo"
+            src="{{photo}}"
+            mode="aspectFill"
+            data-meal-index="{{index}}"
+            data-url="{{photo}}"
+            catchtap="previewMealPhoto"
+          ></image>
+        </view>
+
         <view class="btn btn--ghost btn--block meal__logs" data-index="{{index}}" catchtap="goLogs">查看操作记录</view>
       </block>
     </view>

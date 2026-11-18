@@ -58,12 +58,45 @@ async function cleanupDishImages(familyId) {
   const fileList = dishes
     .map((dish) => dish.imageUrl)
     .filter((imageUrl) => /^cloud:\/\//.test(imageUrl || ''));
+  await deleteCloudFiles(fileList);
+}
+
+async function deleteCloudFiles(fileList) {
   if (!fileList.length) return;
   try {
-    await cloud.deleteFile({ fileList });
+    for (let index = 0; index < fileList.length; index += 50) {
+      // eslint-disable-next-line no-await-in-loop
+      await cloud.deleteFile({
+        fileList: fileList.slice(index, index + 50)
+      });
+    }
   } catch (err) {
-    console.warn('清理解散家庭的菜品图片失败', err);
+    console.warn('清理解散家庭的云存储图片失败', err);
   }
+}
+
+async function cleanupMealImages(familyId) {
+  const meals = [];
+  for (let skip = 0; skip < 1000; skip += 100) {
+    // eslint-disable-next-line no-await-in-loop
+    const mealRes = await db
+      .collection('meals')
+      .where({ familyId })
+      .skip(skip)
+      .limit(100)
+      .get();
+    meals.push(...mealRes.data);
+    if (mealRes.data.length < 100) break;
+  }
+  const fileList = [];
+  meals.forEach((meal) => {
+    (meal.photoFileIDs || []).forEach((fileID) => {
+      if (/^cloud:\/\//.test(fileID) && !fileList.includes(fileID)) {
+        fileList.push(fileID);
+      }
+    });
+  });
+  await deleteCloudFiles(fileList);
 }
 
 exports.main = handler(async (event, openid) => {
@@ -77,6 +110,7 @@ exports.main = handler(async (event, openid) => {
 
   const removed = {};
   await cleanupDishImages(familyId);
+  await cleanupMealImages(familyId);
   for (const collectionName of RELATED_COLLECTIONS) {
     // eslint-disable-next-line no-await-in-loop
     removed[collectionName] = await removeFamilyDocuments(

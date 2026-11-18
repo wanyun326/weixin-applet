@@ -39,3 +39,43 @@
 .meal__logs {
   margin-top: 20rpx;
 }
+
+.meal-record {
+  margin-top: 18rpx;
+  padding: 20rpx;
+  border-radius: 14rpx;
+  background: #FFF8F5;
+}
+
+.meal-record__label {
+  margin-bottom: 10rpx;
+  color: #FF7043;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.meal-record__note {
+  color: #3D3934;
+  font-size: 27rpx;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.meal-record__by {
+  margin-top: 10rpx;
+  text-align: right;
+}
+
+.meal-photos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-top: 16rpx;
+}
+
+.meal-photo {
+  width: calc((100% - 24rpx) / 3);
+  height: 184rpx;
+  border-radius: 14rpx;
+  background: #F0F1F5;
+}

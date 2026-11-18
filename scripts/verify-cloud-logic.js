@@ -395,7 +395,9 @@ async function testMealAndOrderRules() {
   await expectCode(
     closeMeal({
       familyId: 'family-a',
-      mealId: firstMeal.data._id
+      mealId: firstMeal.data._id,
+      postNote: '今天这道菜很受欢迎',
+      photoFileIDs: ['cloud://meal-photo-1', 'invalid-path']
     }),
     0,
     '家庭可以结束当餐'
@@ -404,6 +406,15 @@ async function testMealAndOrderRules() {
     stores.families['family-a'].activeMealId,
     '',
     '结束当餐后应释放家庭级锁'
+  );
+  assert.strictEqual(
+    stores.meals[firstMeal.data._id].postNote,
+    '今天这道菜很受欢迎'
+  );
+  assert.deepStrictEqual(
+    stores.meals[firstMeal.data._id].photoFileIDs,
+    ['cloud://meal-photo-1'],
+    '只保存云存储照片并过滤无效路径'
   );
   const deleteOrder = loadFunction('deleteOrder');
   await expectCode(

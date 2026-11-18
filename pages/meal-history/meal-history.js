@@ -34,8 +34,10 @@ Page({
       this.setData({
         meals: list.map((m) => ({
           ...m,
+          photoFileIDs: Array.isArray(m.photoFileIDs) ? m.photoFileIDs : [],
           createdAtText: util.mDweek(m.createdAt),
-          closedAtText: util.mdhm(m.closedAt)
+          closedAtText: util.mdhm(m.closedAt),
+          recordedAtText: m.recordedAt ? util.mdhm(m.recordedAt) : ''
         })),
         loading: false
       });
@@ -77,6 +79,15 @@ Page({
       url: `/pages/operation-logs/operation-logs?mealId=${meal._id}&mealLabel=${encodeURIComponent(
         meal.label
       )}`
+    });
+  },
+
+  previewMealPhoto(e) {
+    const meal = this.data.meals[e.currentTarget.dataset.mealIndex];
+    if (!meal) return;
+    wx.previewImage({
+      current: e.currentTarget.dataset.url,
+      urls: meal.photoFileIDs
     });
   }
 });

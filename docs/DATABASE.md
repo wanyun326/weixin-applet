@@ -57,6 +57,10 @@
 | `createdAt` | date | 开启时间 |
 | `closedBy` / `closedByName` | string | 结束人 |
 | `closedAt` | date | 结束时间 |
+| `postNote` | string | 餐后记录文字，最多 500 字 |
+| `photoFileIDs` | array | 餐后留影的云存储 fileID，最多 9 张 |
+| `recordedBy` / `recordedByName` | string | 餐后记录提交人 |
+| `recordedAt` | date | 餐后记录时间 |
 
 ### dishes（菜品库）
 

@@ -175,7 +175,13 @@ Page({
   async cleanupUploadedFile(fileID) {
     if (!fileID || !/^cloud:\/\//.test(fileID)) return;
     try {
-      await wx.cloud.deleteFile({ fileList: [fileID] });
+      await new Promise((resolve, reject) => {
+        wx.cloud.deleteFile({
+          fileList: [fileID],
+          success: resolve,
+          fail: reject
+        });
+      });
     } catch (err) {
       console.warn('清理未使用的菜品图片失败', err);
     }

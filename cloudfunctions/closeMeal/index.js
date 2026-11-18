@@ -15,6 +15,13 @@ exports.main = handler(async (event, openid) => {
   const { familyId, mealId } = event;
   if (!mealId) return fail('缺少当餐信息');
   const member = await assertMember(familyId, openid);
+  const postNote = String(event.postNote || '').trim().slice(0, 500);
+  const photoFileIDs = Array.isArray(event.photoFileIDs)
+    ? event.photoFileIDs
+        .filter((fileID) => /^cloud:\/\//.test(fileID || ''))
+        .filter((fileID, index, list) => list.indexOf(fileID) === index)
+        .slice(0, 9)
+    : [];
 
   await db.runTransaction(async (transaction) => {
     const meal = await getFamilyMeal(familyId, mealId, {
@@ -32,7 +39,12 @@ exports.main = handler(async (event, openid) => {
         status: 'closed',
         closedBy: openid,
         closedByName: member.nickname || '成员',
-        closedAt: serverDate()
+        closedAt: serverDate(),
+        postNote,
+        photoFileIDs,
+        recordedBy: openid,
+        recordedByName: member.nickname || '成员',
+        recordedAt: serverDate()
       }
     });
     if (family.activeMealId === mealId) {
@@ -46,5 +58,5 @@ exports.main = handler(async (event, openid) => {
     return meal;
   });
 
-  return ok({ mealId });
+  return ok({ mealId, postNote, photoFileIDs });
 });
