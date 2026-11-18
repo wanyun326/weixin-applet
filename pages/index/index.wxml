@@ -34,6 +34,26 @@
     </block>
   </view>
 
+  <!-- 仅开发版显示：方便首次部署时复制 openid、初始化数据库 -->
+  <view wx:if="{{showOpenidDebug && openid}}" class="card openid-debug">
+    <view class="openid-debug__head">
+      <text class="openid-debug__title">开发调试信息</text>
+      <text class="tag">仅开发版</text>
+    </view>
+    <view class="muted openid-debug__label">当前用户 openid</view>
+    <text class="openid-debug__value" user-select="{{true}}">{{openid}}</text>
+    <view class="openid-debug__actions">
+      <view class="btn btn--sm btn--ghost flex-1" bindtap="copyOpenid">复制 openid</view>
+      <view
+        class="btn btn--sm btn--accent flex-1 {{initializingData ? 'btn--disabled' : ''}}"
+        bindtap="onInitData"
+      >{{initializingData ? '初始化中...' : '初始化基础数据'}}</view>
+    </view>
+    <view class="muted openid-debug__tip">
+      配置 INIT_ADMIN_OPENIDS 后，再点击初始化基础数据。
+    </view>
+  </view>
+
   <!-- 家庭列表 -->
   <view class="section-head">
     <text class="section-title">我的家庭</text>

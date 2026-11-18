@@ -38,6 +38,51 @@
   font-size: 28rpx;
 }
 
+.openid-debug {
+  border: 1rpx dashed #9DDDD4;
+  background: linear-gradient(135deg, #FFFFFF, #F3FFFC);
+}
+
+.openid-debug__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18rpx;
+}
+
+.openid-debug__title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1E7F76;
+}
+
+.openid-debug__label {
+  margin-bottom: 8rpx;
+}
+
+.openid-debug__value {
+  display: block;
+  padding: 16rpx;
+  border-radius: 12rpx;
+  background: #EDF8F6;
+  color: #1E5D57;
+  font-family: Menlo, Monaco, monospace;
+  font-size: 22rpx;
+  line-height: 1.5;
+  word-break: break-all;
+}
+
+.openid-debug__actions {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 18rpx;
+}
+
+.openid-debug__tip {
+  margin-top: 14rpx;
+  line-height: 1.5;
+}
+
 .section-head {
   display: flex;
   align-items: baseline;

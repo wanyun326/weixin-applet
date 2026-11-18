@@ -4,6 +4,16 @@ const db = require('../../utils/db');
 const store = require('../../utils/store');
 const util = require('../../utils/util');
 
+/** 仅在开发版显示初始化辅助信息，不会出现在正式版 */
+function isDevelopVersion() {
+  try {
+    const accountInfo = wx.getAccountInfoSync();
+    return accountInfo.miniProgram.envVersion === 'develop';
+  } catch (err) {
+    return false;
+  }
+}
+
 Page({
   data: {
     loading: true,
@@ -14,6 +24,8 @@ Page({
     draftAvatar: '',
     editingProfile: false,
     saving: false,
+    showOpenidDebug: false,
+    initializingData: false,
     families: []
   },
 
@@ -40,6 +52,15 @@ Page({
     try {
       const openid = await this.ensureOpenid();
       const profile = store.getProfile();
+      // 先展示调试信息，即使数据库集合尚未初始化也能复制 openid。
+      this.setData({
+        openid,
+        showOpenidDebug: isDevelopVersion(),
+        profile,
+        editingProfile: !profile,
+        draftNickname: profile ? profile.nickname : '',
+        draftAvatar: profile ? profile.avatar : ''
+      });
       const families = await db.getMyFamilies(openid);
 
       this.setData({
@@ -69,6 +90,38 @@ Page({
     const res = await db.callFunction('login');
     app.globalData.openid = res.openid;
     return res.openid;
+  },
+
+  copyOpenid() {
+    if (!this.data.openid) return;
+    wx.setClipboardData({
+      data: this.data.openid,
+      success: () => wx.showToast({ title: 'openid 已复制', icon: 'success' })
+    });
+  },
+
+  async onInitData() {
+    if (this.data.initializingData) return;
+    this.setData({ initializingData: true });
+    try {
+      const result = await db.callFunction('initData');
+      wx.showModal({
+        title: '初始化成功',
+        content: `新增菜品 ${result.dishesInserted || 0} 道，新增辅食 ${
+          result.foodsInserted || 0
+        } 条。`,
+        showCancel: false
+      });
+      this.refresh();
+    } catch (err) {
+      wx.showModal({
+        title: '初始化失败',
+        content: err.message || '请检查 initData 是否已部署和配置管理员',
+        showCancel: false
+      });
+    } finally {
+      this.setData({ initializingData: false });
+    }
   },
 
   // ---- 资料设置 ----
