@@ -492,6 +492,39 @@ async function testJoinAndProfileSync() {
   );
 }
 
+async function testLoginFamilyList() {
+  resetDatabase();
+  currentOpenid = 'user-a';
+  await seed('families', [
+    {
+      _id: 'family-a',
+      name: '服务端家庭',
+      creatorOpenid: 'user-a',
+      memberOpenids: ['user-a'],
+      memberCount: 1,
+      babyFoodEnabled: true,
+      createdAt: new Date('2026-11-18')
+    }
+  ]);
+  await seed('family_members', [
+    {
+      _id: 'member-a',
+      familyId: 'family-a',
+      openid: 'user-a'
+    }
+  ]);
+
+  const login = loadFunction('login');
+  const result = await expectCode(login({}), 0, '登录可以返回家庭列表');
+  assert.strictEqual(result.data.families.length, 1);
+  assert.strictEqual(result.data.families[0].name, '服务端家庭');
+  assert.strictEqual(
+    result.data.families[0].memberOpenids,
+    undefined,
+    '不应把成员 openid 数组返回客户端'
+  );
+}
+
 function testHomeOrderState() {
   const originalGetApp = global.getApp;
   const originalPage = global.Page;
@@ -554,6 +587,8 @@ async function run() {
     console.log('  ok   加入防重与成员资料同步');
     testHomeOrderState();
     console.log('  ok   首页已点菜名与菜品状态');
+    await testLoginFamilyList();
+    console.log('  ok   登录服务端返回家庭列表');
     console.log('\n✅ 云函数核心规则测试全部通过\n');
   } finally {
     console.error = originalConsoleError;

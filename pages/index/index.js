@@ -50,7 +50,8 @@ Page({
   async refresh() {
     this.setData({ loading: true });
     try {
-      const openid = await this.ensureOpenid();
+      const login = await this.ensureLogin();
+      const openid = login.openid;
       const profile = store.getProfile();
       // 先展示调试信息，即使数据库集合尚未初始化也能复制 openid。
       this.setData({
@@ -61,7 +62,7 @@ Page({
         draftNickname: profile ? profile.nickname : '',
         draftAvatar: profile ? profile.avatar : ''
       });
-      const families = await db.getMyFamilies(openid);
+      const families = login.families || [];
 
       this.setData({
         openid,
@@ -85,11 +86,10 @@ Page({
     }
   },
 
-  async ensureOpenid() {
-    if (app.globalData.openid) return app.globalData.openid;
+  async ensureLogin() {
     const res = await db.callFunction('login');
     app.globalData.openid = res.openid;
-    return res.openid;
+    return res;
   },
 
   copyOpenid() {
