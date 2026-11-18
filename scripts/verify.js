@@ -38,7 +38,7 @@ check(exists('custom-tab-bar/index.js'), 'custom-tab-bar/index.js');
 console.log('\n[3] 云函数齐全');
 [
   'login', 'createFamily', 'joinFamily', 'leaveFamily', 'removeMember',
-  'startMeal', 'closeMeal', 'addOrder', 'deleteOrder', 'updateOrderStatus',
+  'deleteFamily', 'startMeal', 'closeMeal', 'addOrder', 'deleteOrder', 'updateOrderStatus',
   'toggleBabyFood', 'addBabyFood', 'updateProfile', 'initData'
 ].forEach((fn) => {
   check(exists(`cloudfunctions/${fn}/index.js`), `cloudfunctions/${fn}/index.js`);

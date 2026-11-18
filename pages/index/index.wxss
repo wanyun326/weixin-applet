@@ -111,6 +111,17 @@
   margin-top: 8rpx;
 }
 
+.family__actions {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  margin-left: 12rpx;
+}
+
+.family__delete {
+  flex-shrink: 0;
+}
+
 .family__arrow {
   font-size: 44rpx;
   color: #C7CCD4;

@@ -26,6 +26,7 @@ Page({
     saving: false,
     showOpenidDebug: false,
     initializingData: false,
+    deletingFamilyId: '',
     families: []
   },
 
@@ -190,6 +191,37 @@ Page({
       return;
     }
     wx.navigateTo({ url: '/pages/family-edit/family-edit' });
+  },
+
+  onDeleteFamily(e) {
+    if (this.data.deletingFamilyId) return;
+    const family = this.data.families[e.currentTarget.dataset.index];
+    wx.showModal({
+      title: '解散家庭',
+      content: `确定永久解散「${family.name}」吗？该家庭的成员、当餐、订单、操作记录、宝宝和自定义辅食都会删除，无法恢复。`,
+      confirmText: '解散',
+      confirmColor: '#E4572E',
+      success: async (res) => {
+        if (!res.confirm) return;
+        this.setData({ deletingFamilyId: family._id });
+        try {
+          await db.callFunction('deleteFamily', { familyId: family._id });
+          const currentFamily = store.getCurrentFamily();
+          if (currentFamily && currentFamily._id === family._id) {
+            store.clearCurrentFamily();
+            app.globalData.currentFamilyId = '';
+            app.globalData.currentFamilyName = '';
+            app.globalData.babyFoodEnabled = false;
+          }
+          await this.refresh();
+          wx.showToast({ title: '家庭已解散', icon: 'success' });
+        } catch (err) {
+          wx.showToast({ title: err.message || '解散失败', icon: 'none' });
+        } finally {
+          this.setData({ deletingFamilyId: '' });
+        }
+      }
+    });
   },
 
   enterFamily(e) {

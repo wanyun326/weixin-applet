@@ -527,6 +527,69 @@ async function testLoginFamilyList() {
   );
 }
 
+async function testDeleteFamily() {
+  resetDatabase();
+  currentOpenid = 'user-a';
+  await seed('families', [
+    {
+      _id: 'family-a',
+      name: '待删除家庭',
+      creatorOpenid: 'user-a',
+      memberOpenids: ['user-a'],
+      memberCount: 1
+    },
+    {
+      _id: 'family-b',
+      name: '保留家庭',
+      creatorOpenid: 'user-b',
+      memberOpenids: ['user-b'],
+      memberCount: 1
+    }
+  ]);
+
+  const relatedCollections = [
+    'family_members',
+    'meals',
+    'orders',
+    'operation_logs',
+    'babies',
+    'baby_foods'
+  ];
+  for (const collectionName of relatedCollections) {
+    await seed(collectionName, [
+      { _id: `${collectionName}-a`, familyId: 'family-a' },
+      { _id: `${collectionName}-b`, familyId: 'family-b' }
+    ]);
+  }
+
+  const deleteFamily = loadFunction('deleteFamily');
+  await expectCode(
+    deleteFamily({ familyId: 'family-a' }),
+    0,
+    '创建人可以解散家庭'
+  );
+  assert.strictEqual(stores.families['family-a'], undefined);
+  assert.ok(stores.families['family-b'], '其他家庭不应被删除');
+  for (const collectionName of relatedCollections) {
+    assert.strictEqual(
+      stores[collectionName][`${collectionName}-a`],
+      undefined,
+      `${collectionName} 的关联数据应被清理`
+    );
+    assert.ok(
+      stores[collectionName][`${collectionName}-b`],
+      `${collectionName} 的其他家庭数据应保留`
+    );
+  }
+
+  currentOpenid = 'user-a';
+  await expectCode(
+    deleteFamily({ familyId: 'family-b' }),
+    403,
+    '非创建人不能解散家庭'
+  );
+}
+
 function testHomeOrderState() {
   const originalGetApp = global.getApp;
   const originalPage = global.Page;
@@ -591,6 +654,8 @@ async function run() {
     console.log('  ok   首页已点菜名与菜品状态');
     await testLoginFamilyList();
     console.log('  ok   登录服务端返回家庭列表');
+    await testDeleteFamily();
+    console.log('  ok   创建人解散家庭与关联数据清理');
     console.log('\n✅ 云函数核心规则测试全部通过\n');
   } finally {
     console.error = originalConsoleError;

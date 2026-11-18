@@ -81,7 +81,15 @@
         </view>
         <view class="muted family__meta">{{item.memberCount}} 位成员 · {{item.createdAtText}} 创建</view>
       </view>
-      <view class="family__arrow">›</view>
+      <view class="family__actions">
+        <view
+          wx:if="{{item.isCreator}}"
+          class="btn btn--sm btn--danger family__delete"
+          data-index="{{index}}"
+          catchtap="onDeleteFamily"
+        >{{deletingFamilyId === item._id ? '删除中...' : '解散'}}</view>
+        <view class="family__arrow">›</view>
+      </view>
     </view>
   </block>
 

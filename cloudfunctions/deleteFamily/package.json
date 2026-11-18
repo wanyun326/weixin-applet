@@ -1,0 +1,9 @@
+{
+  "name": "deleteFamily",
+  "version": "1.0.0",
+  "description": "创建人解散家庭并清理关联数据",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}
