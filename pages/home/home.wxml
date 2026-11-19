@@ -72,6 +72,13 @@
       >{{item}}</view>
     </scroll-view>
 
+    <view wx:if="{{activeCategory === '宝妈专属' && !searchKeyword}}" class="card mom-guide">
+      <view class="mom-guide__title">月子期这样吃更稳妥</view>
+      <view class="mom-guide__text">优先选择清淡、熟透、易消化的菜，保证优质蛋白、蔬菜、主食和汤水搭配；少油少盐，暂时避免酒精、生食和过辣食物。</view>
+      <view class="mom-guide__allergy">哺乳期如果宝宝出现明确过敏表现，例如湿疹明显加重或频繁腹泻，可在医生指导下逐一排查并短期回避可疑食物；不要自行大范围忌口。</view>
+      <view class="mom-guide__tip">如有剖宫产恢复、妊娠糖尿病、高血压或食物过敏，请按医生建议调整。</view>
+    </view>
+
     <view wx:if="{{loading}}" class="empty"><text class="empty__emoji">⏳</text><text>加载中...</text></view>
 
     <block wx:elif="{{dishes.length}}">
@@ -84,6 +91,7 @@
         <view class="flex-1 dish__info">
           <view class="dish__heading">
             <text class="dish__name">{{item.name}}</text>
+            <text wx:if="{{item.postpartumFriendly}}" class="dish__mom-badge">宝妈推荐</text>
             <text wx:if="{{item.ordered}}" class="dish__badge">✓ 已点</text>
           </view>
           <text wx:if="{{item.ordered}}" class="dish__ordered-desc">

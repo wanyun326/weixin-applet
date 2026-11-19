@@ -200,6 +200,42 @@
   font-weight: 600;
 }
 
+.mom-guide {
+  margin-bottom: 20rpx;
+  border: 1rpx solid #FFD6E2;
+  background: linear-gradient(135deg, #FFF9FB, #FFF2F6);
+}
+
+.mom-guide__title {
+  margin-bottom: 10rpx;
+  color: #C94C78;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.mom-guide__text {
+  color: #5E4B53;
+  font-size: 25rpx;
+  line-height: 1.65;
+}
+
+.mom-guide__tip {
+  margin-top: 10rpx;
+  color: #9A6B7C;
+  font-size: 22rpx;
+  line-height: 1.5;
+}
+
+.mom-guide__allergy {
+  margin-top: 12rpx;
+  padding: 14rpx 16rpx;
+  border-radius: 12rpx;
+  background: #FFF0F4;
+  color: #8C435D;
+  font-size: 23rpx;
+  line-height: 1.6;
+}
+
 .dish {
   display: flex;
   align-items: center;
@@ -230,6 +266,7 @@
 .dish__heading {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 10rpx;
 }
 
@@ -245,6 +282,16 @@
   background: #DFF3F0;
   color: #1E7F76;
   font-size: 20rpx;
+  font-weight: 600;
+}
+
+.dish__mom-badge {
+  flex-shrink: 0;
+  padding: 4rpx 10rpx;
+  border-radius: 16rpx;
+  background: #FFECF2;
+  color: #C94C78;
+  font-size: 19rpx;
   font-weight: 600;
 }
 

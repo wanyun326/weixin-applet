@@ -49,11 +49,11 @@ console.log('\n[3] 云函数齐全');
 console.log('\n[4] 初始化数据与图片引用');
 const dishes = require('../cloudfunctions/initData/data/dishes');
 const foods = require('../cloudfunctions/initData/data/babyFoods');
-check(dishes.length >= 11, `预设菜品数量=${dishes.length}`);
+check(dishes.length >= 21, `预设菜品数量=${dishes.length}`);
 check(foods.length >= 12, `辅食数量=${foods.length}`);
 
 const dishCategories = new Set(dishes.map((d) => d.category));
-const allowedDishCategories = ['热销', '荤菜', '素菜', '主食', '汤类'];
+const allowedDishCategories = ['热销', '荤菜', '素菜', '主食', '汤类', '宝妈专属'];
 dishes.forEach((dish) =>
   check(
     allowedDishCategories.includes(dish.category),
@@ -61,6 +61,10 @@ dishes.forEach((dish) =>
   )
 );
 check(dishCategories.size >= 3, `预设菜品覆盖 ${dishCategories.size} 个分类`);
+check(
+  dishes.some((dish) => dish.postpartumFriendly),
+  '至少有一道宝妈专属推荐菜'
+);
 const foodCategories = new Set(foods.map((f) => f.category));
 ['早餐', '午餐', '晚餐', '加餐'].forEach((c) =>
   check(foodCategories.has(c), `辅食分类含 ${c}`)

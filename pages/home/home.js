@@ -4,7 +4,7 @@ const db = require('../../utils/db');
 const store = require('../../utils/store');
 const util = require('../../utils/util');
 
-const CATEGORIES = ['热销', '荤菜', '素菜', '主食', '汤类'];
+const CATEGORIES = ['热销', '荤菜', '素菜', '主食', '汤类', '宝妈专属'];
 const ORDER_STATUS_TEXT = {
   pending: '待做',
   cooking: '正在做',
@@ -215,7 +215,12 @@ Page({
       .toLowerCase();
     return this.data.allDishes
       .filter((dish) => {
-        if (!keyword) return dish.category === category;
+        if (!keyword) {
+          if (category === '宝妈专属') {
+            return dish.category === '宝妈专属' || !!dish.postpartumFriendly;
+          }
+          return dish.category === category;
+        }
         return (
           String(dish.name || '')
             .toLowerCase()

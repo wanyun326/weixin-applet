@@ -69,12 +69,13 @@
 | --- | --- | --- |
 | `_id` | string | 菜品 ID |
 | `name` / `desc` | string | 名称 / 描述 |
-| `category` | string | 热销 / 荤菜 / 素菜 / 主食 / 汤类 |
+| `category` | string | 热销 / 荤菜 / 素菜 / 主食 / 汤类 / 宝妈专属 |
 | `imageUrl` | string | 图片（占位图或云存储 fileID） |
 | `price` | number | 价格（界面不显示） |
 | `sort` | number | 排序权重 |
 | `isCustom` | boolean | 是否为家庭自定义菜品；内置菜为 `false` 或未设置 |
 | `familyId` | string | 自定义菜所属家庭；内置菜为空 |
+| `postpartumFriendly` | boolean | 是否同时在「宝妈专属」分类中推荐 |
 | `createdBy` | string | 自定义菜创建人 openid |
 | `createdAt` / `updatedAt` | date | 创建 / 更新时间 |
 

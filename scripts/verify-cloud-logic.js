@@ -850,14 +850,16 @@ function testHomeOrderState() {
         name: '西红柿炒蛋',
         category: '热销',
         imageUrl: '/images/dishes/hot.png',
-        desc: '酸甜下饭'
+        desc: '酸甜下饭',
+        postpartumFriendly: true
       },
       {
         _id: 'dish-soup',
         name: '冬瓜排骨汤',
         category: '汤类',
         imageUrl: '/images/dishes/soup.png',
-        desc: '清爽不油腻'
+        desc: '清爽不油腻',
+        postpartumFriendly: false
       }
     ];
     page.applyOrders([
@@ -877,6 +879,11 @@ function testHomeOrderState() {
     page.applyFilter('热销');
     assert.strictEqual(page.data.dishes.length, 1);
     assert.strictEqual(page.data.dishes[0].name, '冬瓜排骨汤');
+
+    page.data.searchKeyword = '';
+    page.applyFilter('宝妈专属');
+    assert.strictEqual(page.data.dishes.length, 1);
+    assert.strictEqual(page.data.dishes[0].name, '西红柿炒蛋');
   } finally {
     global.getApp = originalGetApp;
     global.Page = originalPage;

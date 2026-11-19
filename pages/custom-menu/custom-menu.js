@@ -3,7 +3,7 @@ const app = getApp();
 const db = require('../../utils/db');
 const store = require('../../utils/store');
 
-const CATEGORIES = ['热销', '荤菜', '素菜', '主食', '汤类'];
+const CATEGORIES = ['热销', '荤菜', '素菜', '主食', '汤类', '宝妈专属'];
 const DEFAULT_IMAGE = '/images/dishes/hot.png';
 
 function createEmptyForm() {

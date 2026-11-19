@@ -12,7 +12,7 @@ const {
   handler
 } = require('./common');
 
-const CATEGORIES = ['热销', '荤菜', '素菜', '主食', '汤类'];
+const CATEGORIES = ['热销', '荤菜', '素菜', '主食', '汤类', '宝妈专属'];
 const PAGE_SIZE = 100;
 
 function isCollectionMissing(err) {

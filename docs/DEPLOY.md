@@ -77,7 +77,7 @@ wx.cloud.callFunction({ name: 'initData', data: {} }).then((res) => {
 });
 ```
 
-7. 首次初始化会自动创建缺失集合，并写入 11 道预设菜品与 16 条辅食。
+7. 首次初始化会自动创建缺失集合，并写入 21 道预设菜品与 16 条辅食。
 8. 开发版按钮会以 `{ reset: true }` 调用；家庭自定义菜品、默认菜家庭图片和自定义辅食均不会被删除。
 
 > `initData` 未配置管理员或调用人不在白名单时会返回 403，这是安全保护，不是部署故障。
@@ -99,7 +99,7 @@ wx.cloud.callFunction({ name: 'initData', data: {} }).then((res) => {
       "babies",
       "baby_foods"
     ],
-    "dishesInserted": 11,
+    "dishesInserted": 21,
     "foodsInserted": 16
   }
 }
