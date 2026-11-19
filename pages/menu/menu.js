@@ -68,7 +68,7 @@ Page({
         mealLabel: meal.label,
         loading: false
       });
-      this.setupWatch(family._id, meal._id);
+      this.startOrderSync(family._id, meal._id);
     } catch (err) {
       this.setData({ loading: false });
       wx.showToast({ title: err.message, icon: 'none' });
@@ -85,29 +85,36 @@ Page({
     return family && family._id ? family : null;
   },
 
-  /** 建立实时监听 */
-  setupWatch(familyId, mealId) {
+  /** 通过云函数轮询，避免客户端数据库权限导致订单列表为空 */
+  startOrderSync(familyId, mealId) {
     this.closeWatch();
-    this._watcher = db
-      .db()
-      .collection('orders')
-      .where({ familyId, mealId })
-      .watch({
-        onChange: (snapshot) => this.renderOrders(snapshot.docs || []),
-        onError: (err) => {
-          console.error('订单实时监听失败', err);
-        }
+    this.refreshOrders(familyId, mealId);
+    this._pollTimer = setInterval(() => {
+      this.refreshOrders(familyId, mealId);
+    }, 3000);
+  },
+
+  async refreshOrders(familyId, mealId) {
+    if (this._orderSyncing) return;
+    this._orderSyncing = true;
+    try {
+      const data = await db.callFunction('addOrder', {
+        action: 'list',
+        familyId: familyId || this.data.familyId,
+        mealId: mealId || this.data.mealId
       });
+      this.renderOrders((data && data.orders) || []);
+    } catch (err) {
+      console.error('订单同步失败', err);
+    } finally {
+      this._orderSyncing = false;
+    }
   },
 
   closeWatch() {
-    if (this._watcher) {
-      try {
-        this._watcher.close();
-      } catch (e) {
-        // ignore
-      }
-      this._watcher = null;
+    if (this._pollTimer) {
+      clearInterval(this._pollTimer);
+      this._pollTimer = null;
     }
   },
 
@@ -146,6 +153,7 @@ Page({
         orderId,
         action
       });
+      await this.refreshOrders();
     } catch (err) {
       wx.showToast({ title: err.message, icon: 'none' });
     }
@@ -166,6 +174,7 @@ Page({
             familyId: this.data.familyId,
             orderId
           });
+          await this.refreshOrders();
           wx.showToast({ title: '已删除', icon: 'success' });
         } catch (err) {
           wx.showToast({ title: err.message, icon: 'none' });

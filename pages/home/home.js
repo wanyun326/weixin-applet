@@ -166,34 +166,35 @@ Page({
     return sortOrders(orders.map(decorateOrder));
   },
 
-  /** 监听当前当餐订单，其他家庭成员点菜后首页状态也会自动刷新 */
+  /** 通过云函数轮询当前当餐订单，避免客户端权限导致监听为空 */
   setupOrderWatch(familyId, mealId) {
     this.closeOrderWatch();
-    this._orderWatcher = db
-      .db()
-      .collection('orders')
-      .where({ familyId, mealId })
-      .watch({
-        onChange: (snapshot) => {
-          const orders = sortOrders(
-            (snapshot.docs || []).map(decorateOrder)
-          );
-          this.applyOrders(orders);
-        },
-        onError: (err) => {
-          console.error('点菜状态实时监听失败', err);
-        }
-      });
+    this.refreshHomeOrders(familyId, mealId);
+    this._orderPollTimer = setInterval(() => {
+      this.refreshHomeOrders(familyId, mealId);
+    }, 4000);
+  },
+
+  async refreshHomeOrders(familyId, mealId) {
+    if (this._ordersRefreshing) return;
+    this._ordersRefreshing = true;
+    try {
+      const orders = await this.loadOrderedDishes(
+        { _id: mealId },
+        familyId
+      );
+      this.applyOrders(orders);
+    } catch (err) {
+      console.error('首页订单同步失败', err);
+    } finally {
+      this._ordersRefreshing = false;
+    }
   },
 
   closeOrderWatch() {
-    if (this._orderWatcher) {
-      try {
-        this._orderWatcher.close();
-      } catch (err) {
-        console.warn('关闭点菜状态监听失败', err);
-      }
-      this._orderWatcher = null;
+    if (this._orderPollTimer) {
+      clearInterval(this._orderPollTimer);
+      this._orderPollTimer = null;
     }
   },
 
