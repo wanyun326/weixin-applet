@@ -49,6 +49,7 @@
 ## 快速开始
 
 > 完整步骤见 [docs/DEPLOY.md](docs/DEPLOY.md)，数据库结构见 [docs/DATABASE.md](docs/DATABASE.md)。
+> 微信审核提交文案、隐私说明和测试路径见 [docs/REVIEW_SUBMISSION.md](docs/REVIEW_SUBMISSION.md)。
 
 1. 用微信开发者工具打开本目录，填入自己的 AppID。
 2. 开通云开发，把环境 ID 填进 `config.js` 的 `cloudEnvId`。

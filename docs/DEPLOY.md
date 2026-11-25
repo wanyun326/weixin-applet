@@ -127,7 +127,7 @@ wx.cloud.callFunction({ name: 'initData', data: {} }).then((res) => {
 - [ ] `initData` 已配置 `INIT_ADMIN_OPENIDS` 环境变量；
 - [ ] 占位图已替换为真实照片（上传云存储并更新 `imageUrl`）；
 - [ ] 在「开发设置 → 服务器域名」无需配置（本项目不含外部请求）；
-- [ ] 已在小程序后台补充隐私协议（涉及头像、昵称、相册等）。
+- [ ] 已在小程序后台补充隐私协议（涉及头像、昵称、相册等）；可直接参考 [REVIEW_SUBMISSION.md](REVIEW_SUBMISSION.md) 的填写模板。
 
 ## 常见问题
 
