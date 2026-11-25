@@ -75,8 +75,9 @@ function lerp(a, b, t) {
 
 /** 竖向渐变 + 右上角高光圆，生成一张占位图 */
 function makeCard(fromHex, toHex, accentHex) {
-  const width = 400;
-  const height = 300;
+  // 小程序菜品卡片只需小缩略图，保持轻量以避开代码包资源限制。
+  const width = 160;
+  const height = 120;
   const from = hex(fromHex);
   const to = hex(toHex);
   const accent = hex(accentHex);

@@ -7,6 +7,7 @@ const path = require('path');
 const { spawnSync } = require('child_process');
 
 const ROOT = path.resolve(__dirname, '..');
+const IMAGE_ROOT = path.join(ROOT, 'images');
 let errors = 0;
 
 function check(cond, message) {
@@ -20,6 +21,13 @@ function check(cond, message) {
 
 function exists(rel) {
   return fs.existsSync(path.join(ROOT, rel));
+}
+
+function walkFiles(dir) {
+  return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    const fullPath = path.join(dir, entry.name);
+    return entry.isDirectory() ? walkFiles(fullPath) : [fullPath];
+  });
 }
 
 console.log('\n[1] app.json 页面与文件完整性');
@@ -80,7 +88,26 @@ foods.forEach((f) => {
   check(exists(f.imageUrl.replace(/^\//, '')), `辅食图片存在：${f.imageUrl}`);
 });
 
-console.log('\n[5] 辅食推荐算法（同日稳定 + 换一道生效）');
+console.log('\n[5] 小程序图片资源预算');
+const imageExtensions = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif']);
+const imageFiles = walkFiles(IMAGE_ROOT).filter((file) =>
+  imageExtensions.has(path.extname(file).toLowerCase())
+);
+const imageStats = imageFiles.map((file) => ({ file, bytes: fs.statSync(file).size }));
+const imageBytes = imageStats.reduce((sum, item) => sum + item.bytes, 0);
+const largestImage = imageStats.reduce((max, item) =>
+  item.bytes > max.bytes ? item : max
+);
+check(
+  imageBytes <= 200 * 1024,
+  `图片资源总量 ${(imageBytes / 1024).toFixed(1)}KB ≤ 200KB`
+);
+check(
+  largestImage.bytes <= 200 * 1024,
+  `最大图片 ${(largestImage.bytes / 1024).toFixed(1)}KB ≤ 200KB`
+);
+
+console.log('\n[6] 辅食推荐算法（同日稳定 + 换一道生效）');
 const recommend = require('../utils/recommend');
 const opts = { babyId: 'baby1', date: '2025-01-15', ageMonths: 8, categories: ['早餐', '午餐', '晚餐', '加餐'] };
 const a = recommend.recommendDaily(foods, opts).map((r) => (r.food ? r.food.name : null));
@@ -92,7 +119,7 @@ const swapped = recommend.recommendDaily(foods, { ...opts, saltMap: { 早餐: 1 
 check(a[0] !== undefined, '推荐结果非空');
 check(swapped[0] !== a[0] || foods.filter((f) => f.category === '早餐' && 8 >= f.minMonth && 8 <= f.maxMonth).length <= 1, '换一道会切换候选');
 
-console.log('\n[6] 云函数核心规则');
+console.log('\n[7] 云函数核心规则');
 const cloudLogic = spawnSync(
   process.execPath,
   [path.join(ROOT, 'scripts/verify-cloud-logic.js')],
