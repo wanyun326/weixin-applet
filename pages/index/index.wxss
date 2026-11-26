@@ -25,7 +25,7 @@
 .avatar-btn__hint {
   margin-top: 12rpx;
   font-size: 24rpx;
-  color: #FF7043;
+  color: #B85434;
 }
 
 .input {
@@ -34,13 +34,13 @@
   margin-top: 28rpx;
   padding: 0 28rpx;
   border-radius: 44rpx;
-  background: #F5F6FA;
+  background: #F3EFE7;
   font-size: 28rpx;
 }
 
 .openid-debug {
   border: 1rpx dashed #9DDDD4;
-  background: linear-gradient(135deg, #FFFFFF, #F3FFFC);
+  background: var(--surface-sage);
 }
 
 .openid-debug__head {

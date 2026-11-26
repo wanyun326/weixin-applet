@@ -1,10 +1,16 @@
-// 菜单（做菜协作）：实时同步订单状态，pending -> cooking -> done 单向流转
+// 菜单（备餐协作）：待准备 -> 已准备；历史 cooking/done 统一视为已准备
 const app = getApp();
 const db = require('../../utils/db');
 const store = require('../../utils/store');
 const util = require('../../utils/util');
+const share = require('../../utils/share');
 
-const STATUS_TEXT = { pending: '待做', cooking: '正在做', done: '已完成' };
+const STATUS_TEXT = {
+  pending: '待准备',
+  prepared: '已准备',
+  cooking: '已准备',
+  done: '已准备'
+};
 
 Page({
   data: {
@@ -14,13 +20,13 @@ Page({
     mealId: '',
     mealLabel: '',
     pending: [],
-    cooking: [],
-    done: [],
-    showDone: true,
+    prepared: [],
+    inviteCode: '',
     loading: true
   },
 
   onShow() {
+    share.enableShareMenu();
     if (this.getTabBar && this.getTabBar()) {
       this.getTabBar().setActive('/pages/menu/menu');
     }
@@ -46,6 +52,7 @@ Page({
       familyName: family.name,
       loading: true
     });
+    this.loadFamilyInvite(family._id);
 
     try {
       const meal = await db.getActiveMeal(family._id);
@@ -56,8 +63,7 @@ Page({
           mealId: '',
           mealLabel: '',
           pending: [],
-          cooking: [],
-          done: [],
+          prepared: [],
           loading: false
         });
         return;
@@ -72,6 +78,17 @@ Page({
     } catch (err) {
       this.setData({ loading: false });
       wx.showToast({ title: err.message, icon: 'none' });
+    }
+  },
+
+  async loadFamilyInvite(familyId) {
+    try {
+      const detail = await db.callFunction('login', { familyId });
+      this.setData({
+        inviteCode: (detail.family && detail.family.inviteCode) || ''
+      });
+    } catch (err) {
+      console.error('分享邀请码加载失败', err);
     }
   },
 
@@ -125,25 +142,21 @@ Page({
       createdAtText: util.mdhm(o.createdAt)
     });
     const byTimeAsc = (a, b) => new Date(a.createdAt) - new Date(b.createdAt);
-    const byTimeDesc = (a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt);
+    const byPreparedDesc = (a, b) =>
+      new Date(b.preparedAt || b.updatedAt || b.createdAt) -
+      new Date(a.preparedAt || a.updatedAt || a.createdAt);
 
     this.setData({
       pending: docs.filter((o) => o.status === 'pending').map(decorate).sort(byTimeAsc),
-      cooking: docs.filter((o) => o.status === 'cooking').map(decorate).sort(byTimeAsc),
-      done: docs.filter((o) => o.status === 'done').map(decorate).sort(byTimeDesc)
+      prepared: docs
+        .filter((o) => o.status !== 'pending')
+        .map(decorate)
+        .sort(byPreparedDesc)
     });
   },
 
-  toggleDone() {
-    this.setData({ showDone: !this.data.showDone });
-  },
-
-  onStart(e) {
-    this.updateStatus(e.currentTarget.dataset.id, 'start');
-  },
-
-  onFinish(e) {
-    this.updateStatus(e.currentTarget.dataset.id, 'done');
+  onPrepare(e) {
+    this.updateStatus(e.currentTarget.dataset.id, 'prepare');
   },
 
   async updateStatus(orderId, action) {
@@ -205,5 +218,13 @@ Page({
 
   goHistory() {
     wx.navigateTo({ url: '/pages/meal-history/meal-history' });
+  },
+
+  onShareAppMessage() {
+    return share.familyShare(this.data.familyName, this.data.inviteCode);
+  },
+
+  onShareTimeline() {
+    return share.timelineShare(this.data.familyName, this.data.inviteCode);
   }
 });

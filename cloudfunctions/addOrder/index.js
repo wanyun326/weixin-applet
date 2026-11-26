@@ -1,4 +1,4 @@
-// 云函数：点菜（校验当餐进行中；同一道菜每餐只能点一次）+ 写日志
+// 云函数：点菜、读取本餐订单与操作记录（同餐同菜只能点一次）
 const {
   db,
   ok,
@@ -42,8 +42,36 @@ exports.main = handler(async (event, openid) => {
         dishImage: order.dishImage,
         status: order.status,
         orderedByName: order.orderedByName,
+        cookingBy: order.cookingBy || '',
+        cookingByName: order.cookingByName || '',
+        doneBy: order.doneBy || '',
+        doneByName: order.doneByName || '',
+        preparedBy: order.preparedBy || '',
+        preparedByName: order.preparedByName || '',
+        preparedAt: order.preparedAt || null,
         createdAt: order.createdAt,
         updatedAt: order.updatedAt
+      }))
+    });
+  }
+
+  if (action === 'logs') {
+    await getFamilyMeal(familyId, mealId);
+    const logRes = await db
+      .collection('operation_logs')
+      .where({ familyId, mealId })
+      .limit(500)
+      .get();
+    return ok({
+      logs: logRes.data.map((log) => ({
+        _id: log._id,
+        action: log.action,
+        dishName: log.dishName,
+        orderedByName: log.orderedByName,
+        orderStatusBefore: log.orderStatusBefore,
+        operatorName: log.operatorName,
+        operatorAvatar: log.operatorAvatar,
+        createdAt: log.createdAt
       }))
     });
   }
@@ -76,6 +104,9 @@ exports.main = handler(async (event, openid) => {
     orderedByName: operatorName,
     quantity: 1,
     status: 'pending',
+    preparedBy: '',
+    preparedByName: '',
+    preparedAt: null,
     cookingBy: '',
     cookingByName: '',
     doneBy: '',

@@ -1,4 +1,4 @@
-// 云函数：删除待做订单（仅 pending 可删；物理删除 + 写日志）
+// 云函数：撤下待准备订单（仅 pending 可删；物理删除 + 写日志）
 const {
   db,
   ok,
@@ -35,7 +35,7 @@ exports.main = handler(async (event, openid) => {
       throw createError('无权操作该订单', 403);
     }
     if (order.status !== 'pending') {
-      throw createError('正在做或已完成的菜不可删除', 409);
+      throw createError('已准备的菜不可删除', 409);
     }
 
     // 当餐已结束时所有订单冻结，必须在删除前再次校验。

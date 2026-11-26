@@ -1,4 +1,4 @@
-// 云函数：订单状态流转（pending -> cooking -> done，单向不可逆）+ 写日志
+// 云函数：把菜品标记为已准备；兼容历史 cooking/done 状态和旧客户端动作
 const {
   db,
   ok,
@@ -44,9 +44,22 @@ exports.main = handler(async (event, openid) => {
 
     let updateData = {};
     let statusBefore = '';
-    if (action === 'start') {
+    if (action === 'prepare') {
+      if (order.status === 'prepared' || order.status === 'done') {
+        throw createError('这道菜已经准备好了', 409);
+      }
+      statusBefore = order.status;
+      nextStatus = 'prepared';
+      updateData = {
+        status: nextStatus,
+        preparedBy: openid,
+        preparedByName: operatorName,
+        preparedAt: serverDate(),
+        updatedAt: serverDate()
+      };
+    } else if (action === 'start') {
       if (order.status !== 'pending') {
-        throw createError('只有待做的菜可以开始做', 409);
+        throw createError('只有待准备的菜可以开始准备', 409);
       }
       statusBefore = 'pending';
       nextStatus = 'cooking';
@@ -57,10 +70,10 @@ exports.main = handler(async (event, openid) => {
         updatedAt: serverDate()
       };
     } else if (action === 'done') {
-      if (order.status !== 'cooking') {
-        throw createError('只有正在做的菜可以标记完成', 409);
+      if (order.status !== 'cooking' && order.status !== 'pending') {
+        throw createError('这道菜已经准备好了', 409);
       }
-      statusBefore = 'cooking';
+      statusBefore = order.status;
       nextStatus = 'done';
       updateData = {
         status: nextStatus,

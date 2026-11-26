@@ -394,6 +394,41 @@ async function testMealAndOrderRules() {
     '重复点菜不应产生第二条订单'
   );
 
+  const updateOrderStatus = loadFunction('updateOrderStatus');
+  const prepared = await expectCode(
+    updateOrderStatus({
+      familyId: 'family-a',
+      orderId: added.data.orderId,
+      action: 'prepare'
+    }),
+    0,
+    '待准备菜品可以一键标记为已准备'
+  );
+  assert.strictEqual(prepared.data.status, 'prepared');
+  assert.strictEqual(
+    stores.orders[added.data.orderId].status,
+    'prepared',
+    '订单状态应更新为 prepared'
+  );
+
+  const logs = await expectCode(
+    addOrder({
+      familyId: 'family-a',
+      mealId: firstMeal.data._id,
+      action: 'logs'
+    }),
+    0,
+    '家庭成员可以通过云函数读取操作记录'
+  );
+  assert.strictEqual(logs.data.logs.length, 2, '点菜和标记已准备应各有一条日志');
+
+  const deleteOrder = loadFunction('deleteOrder');
+  await expectCode(
+    deleteOrder({ familyId: 'family-a', orderId: added.data.orderId }),
+    409,
+    '已准备的菜不能删除'
+  );
+
   const closeMeal = loadFunction('closeMeal');
   await expectCode(
     closeMeal({
@@ -419,7 +454,6 @@ async function testMealAndOrderRules() {
     ['cloud://meal-photo-1'],
     '只保存云存储照片并过滤无效路径'
   );
-  const deleteOrder = loadFunction('deleteOrder');
   await expectCode(
     deleteOrder({ familyId: 'family-a', orderId: added.data.orderId }),
     409,
@@ -867,13 +901,13 @@ function testHomeOrderState() {
         dishId: 'dish-a',
         dishName: '西红柿炒蛋',
         status: 'pending',
-        statusText: '待做'
+        statusText: '待准备'
       }
     ]);
 
     assert.strictEqual(page.data.orderedDishes[0].dishName, '西红柿炒蛋');
     assert.strictEqual(page.data.dishes[0].ordered, true);
-    assert.strictEqual(page.data.dishes[0].orderStatusText, '待做');
+    assert.strictEqual(page.data.dishes[0].orderStatusText, '待准备');
 
     page.data.searchKeyword = '排骨';
     page.applyFilter('热销');

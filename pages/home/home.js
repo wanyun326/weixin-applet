@@ -3,12 +3,14 @@ const app = getApp();
 const db = require('../../utils/db');
 const store = require('../../utils/store');
 const util = require('../../utils/util');
+const share = require('../../utils/share');
 
 const CATEGORIES = ['热销', '荤菜', '素菜', '主食', '汤类', '宝妈专属'];
 const ORDER_STATUS_TEXT = {
-  pending: '待做',
-  cooking: '正在做',
-  done: '已完成'
+  pending: '待准备',
+  prepared: '已准备',
+  cooking: '已准备',
+  done: '已准备'
 };
 
 /** 按菜品去重，保留最新一条订单 */
@@ -47,11 +49,13 @@ Page({
     dishes: [],
     orderedDishIds: [],
     orderedDishes: [],
+    inviteCode: '',
     loading: true,
     starting: false
   },
 
   onShow() {
+    share.enableShareMenu();
     if (this.getTabBar && this.getTabBar()) {
       this.getTabBar().setActive('/pages/home/home');
     }
@@ -77,6 +81,7 @@ Page({
       familyName: family.name,
       loading: true
     });
+    this.loadFamilyInvite(family._id);
 
     try {
       const meal = await db.getActiveMeal(family._id);
@@ -125,6 +130,17 @@ Page({
       }) ||
       store.getCurrentFamily();
     return family && family._id ? family : null;
+  },
+
+  async loadFamilyInvite(familyId) {
+    try {
+      const detail = await db.callFunction('login', { familyId });
+      this.setData({
+        inviteCode: (detail.family && detail.family.inviteCode) || ''
+      });
+    } catch (err) {
+      console.error('分享邀请码加载失败', err);
+    }
   },
 
   async loadDishes() {
@@ -369,5 +385,13 @@ Page({
 
   goHistory() {
     wx.navigateTo({ url: '/pages/meal-history/meal-history' });
+  },
+
+  onShareAppMessage() {
+    return share.familyShare(this.data.familyName, this.data.inviteCode);
+  },
+
+  onShareTimeline() {
+    return share.timelineShare(this.data.familyName, this.data.inviteCode);
   }
 });

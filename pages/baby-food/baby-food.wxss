@@ -32,8 +32,8 @@
 .head__picker,
 .head__baby {
   font-size: 26rpx;
-  color: #F4511E;
-  background: #FFE7DE;
+  color: #8D3D26;
+  background: #F2E1D8;
   border-radius: 28rpx;
   padding: 10rpx 24rpx;
 }
@@ -48,12 +48,12 @@
 .food__category {
   font-size: 30rpx;
   font-weight: 700;
-  color: #F4511E;
+  color: #8D3D26;
 }
 
 .food__change {
   font-size: 26rpx;
-  color: #26A69A;
+  color: #4F7564;
 }
 
 .food__img {
@@ -87,7 +87,7 @@
   flex-shrink: 0;
   font-size: 24rpx;
   color: #fff;
-  background: #26A69A;
+  background: #4F7564;
   border-radius: 8rpx;
   padding: 2rpx 12rpx;
   height: 40rpx;
@@ -97,14 +97,14 @@
 .food__value {
   flex: 1;
   font-size: 26rpx;
-  color: #6B6F76;
+  color: #6E6258;
   line-height: 1.5;
 }
 
 .food__none {
   padding: 24rpx;
   text-align: center;
-  color: #9AA0A6;
+  color: #978A7D;
   font-size: 26rpx;
 }
 
@@ -153,12 +153,12 @@
   display: flex;
   align-items: center;
   min-height: 92rpx;
-  border-bottom: 1rpx solid #EEF0F4;
+  border-bottom: 1rpx solid #E5DDD1;
 }
 
 .field__label {
   width: 180rpx;
-  color: #6B6F76;
+  color: #6E6258;
   flex-shrink: 0;
 }
 
@@ -171,7 +171,7 @@
 }
 
 .field__sep {
-  color: #9AA0A6;
+  color: #978A7D;
   padding: 0 12rpx;
 }
 

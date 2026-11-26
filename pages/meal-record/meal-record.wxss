@@ -1,22 +1,24 @@
 .head-card {
   margin-bottom: 28rpx;
-  background: linear-gradient(135deg, #FF8A5B, #FF7043);
-  color: #fff;
+  background: var(--surface-soft);
+  color: var(--text);
+  box-shadow: none;
 }
 
 .head-card__label {
   font-size: 24rpx;
-  opacity: 0.82;
+  color: var(--primary);
 }
 
 .head-card__meal {
+  font-family: "Songti SC", "STSong", serif;
   margin: 8rpx 0;
   font-size: 38rpx;
   font-weight: 700;
 }
 
 .head-card__tip {
-  color: rgba(255, 255, 255, 0.82);
+  color: var(--text-2);
   line-height: 1.5;
 }
 
@@ -51,7 +53,7 @@
 
 .empty-row {
   padding: 30rpx;
-  color: #9AA0A6;
+  color: #978A7D;
   text-align: center;
 }
 
@@ -100,7 +102,7 @@
   justify-content: center;
   border: 2rpx dashed #FFD0C0;
   background: #FFF8F5;
-  color: #FF7043;
+  color: #B85434;
 }
 
 .photo-add__icon {
@@ -130,7 +132,7 @@
 
 .note-count {
   margin-top: 8rpx;
-  color: #9AA0A6;
+  color: #978A7D;
   font-size: 22rpx;
   text-align: right;
 }

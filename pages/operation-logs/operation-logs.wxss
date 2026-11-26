@@ -1,55 +1,124 @@
+.logs-page {
+  background:
+    linear-gradient(180deg, rgba(184, 84, 52, 0.05), transparent 180rpx),
+    var(--bg);
+}
+
 .logs-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  padding: 8rpx 8rpx 20rpx;
+  padding: 14rpx 6rpx 30rpx;
+  border-bottom: 1rpx solid var(--line);
+  margin-bottom: 30rpx;
+}
+
+.logs-head__row {
+  margin-top: 6rpx;
 }
 
 .logs-head__label {
-  font-size: 34rpx;
+  font-family: "Songti SC", "STSong", serif;
+  font-size: 40rpx;
   font-weight: 700;
 }
 
-.log {
-  display: flex;
-  align-items: flex-start;
+.timeline {
+  padding: 0 6rpx;
 }
 
-.log__body {
-  margin-left: 20rpx;
+.timeline__item {
+  display: flex;
+  align-items: stretch;
+  min-height: 132rpx;
+}
+
+.timeline__rail {
+  position: relative;
+  width: 42rpx;
+  flex-shrink: 0;
+}
+
+.timeline__rail::after {
+  content: "";
+  position: absolute;
+  top: 26rpx;
+  bottom: -8rpx;
+  left: 12rpx;
+  width: 1rpx;
+  background: var(--line-strong);
+}
+
+.timeline__item:last-child .timeline__rail::after {
+  display: none;
+}
+
+.timeline__dot {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 15rpx;
+  height: 15rpx;
+  margin: 10rpx 0 0 5rpx;
+  border: 4rpx solid var(--bg);
+  border-radius: 50%;
+  background: var(--text-3);
+}
+
+.timeline__dot--add { background: var(--primary); }
+.timeline__dot--prepare,
+.timeline__dot--start,
+.timeline__dot--done { background: var(--accent); }
+.timeline__dot--delete { background: var(--danger); }
+
+.log {
+  flex: 1;
+  margin-bottom: 20rpx;
+  padding: 20rpx 24rpx;
+  border: 1rpx solid var(--line);
+  border-radius: 12rpx;
+  background: var(--card);
 }
 
 .log__line {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 12rpx;
+  gap: 10rpx;
 }
 
 .log__operator {
-  font-size: 28rpx;
+  font-size: 26rpx;
   font-weight: 600;
 }
 
 .log__action {
-  font-size: 24rpx;
-  border-radius: 20rpx;
-  padding: 2rpx 16rpx;
-  background: #EDEFF3;
-  color: #6B6F76;
+  color: var(--text-2);
+  font-size: 23rpx;
 }
 
-.log__action--add { background: #FFE7DE; color: #F4511E; }
-.log__action--start { background: #FFF3D6; color: #B37700; }
-.log__action--done { background: #DFF3F0; color: #1E7F76; }
-.log__action--delete { background: #FDE8E4; color: #E4572E; }
-
 .log__dish {
-  font-size: 28rpx;
-  color: #2D2A26;
+  display: block;
+  margin-top: 8rpx;
+  font-family: "Songti SC", "STSong", serif;
+  font-size: 31rpx;
+  font-weight: 600;
 }
 
 .log__meta {
+  display: block;
   margin-top: 8rpx;
-  line-height: 1.5;
+  color: var(--text-3);
+  font-size: 22rpx;
+}
+
+.log__note {
+  display: block;
+  margin-top: 8rpx;
+  color: var(--text-2);
+  font-size: 22rpx;
+}
+
+.empty-title {
+  margin-bottom: 10rpx;
+  color: var(--text-2);
+  font-size: 30rpx;
+  font-weight: 600;
 }

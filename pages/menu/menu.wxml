@@ -1,100 +1,84 @@
-<view class="page page--tab">
-  <view class="head">
-    <view class="flex-1">
-      <view class="head__family">{{familyName}}</view>
-      <view class="head__meal">{{hasMeal ? mealLabel : '暂无进行中的一餐'}}</view>
+<view class="page page--tab menu-page">
+  <view class="menu-head">
+    <view class="menu-head__top">
+      <view class="flex-1">
+        <text class="eyebrow">{{familyName}}</text>
+        <text class="menu-head__title">{{hasMeal ? mealLabel : '今天还没有开席'}}</text>
+      </view>
+      <button class="menu-head__share" open-type="share">分享</button>
     </view>
-    <text class="head__history" bindtap="goHistory">历史</text>
+    <view class="menu-head__links">
+      <text bindtap="goHistory">历史餐单</text>
+      <text bindtap="goOrder">继续点菜</text>
+    </view>
   </view>
 
-  <view wx:if="{{!hasMeal && !loading}}" class="card start-card">
-    <text class="empty__emoji">🍳</text>
-    <view class="start-card__title">还没有进行中的一餐</view>
-    <view class="muted">先去点菜，开启今天想吃的一餐吧</view>
+  <view wx:if="{{loading}}" class="empty"><text>正在同步餐单…</text></view>
+
+  <view wx:elif="{{!hasMeal}}" class="card start-card">
+    <text class="start-card__mark">空桌</text>
+    <view class="start-card__title">先去点几道想吃的菜</view>
+    <view class="muted">开启一餐后，家里人就能一起安排。</view>
     <view class="btn btn--primary start-card__btn" bindtap="goOrder">去点菜</view>
   </view>
 
-  <block wx:if="{{hasMeal}}">
-    <!-- 待做 -->
-    <view class="group">
-      <view class="group__title">
-        <text class="dot dot--pending"></text>
-        <text>待做</text>
-        <text class="group__count">{{pending.length}}</text>
+  <block wx:else>
+    <view class="section">
+      <view class="section__head">
+        <view>
+          <text class="section__kicker">还没上桌</text>
+          <text class="section__title">待准备</text>
+        </view>
+        <text class="section__count">{{pending.length}} 道</text>
       </view>
-      <view wx:if="{{pending.length}}">
+
+      <view wx:if="{{pending.length}}" class="order-list">
         <view wx:for="{{pending}}" wx:key="_id" class="card order">
           <image class="order__img" src="{{item.dishImage}}" mode="aspectFill" lazy-load></image>
-          <view class="flex-1">
+          <view class="flex-1 order__body">
             <view class="row gap-8">
               <text class="order__name">{{item.dishName}}</text>
               <text wx:if="{{item.quantity > 1}}" class="order__qty">×{{item.quantity}}</text>
             </view>
-            <text class="muted">{{item.orderedByName}} 点的 · {{item.createdAtText}}</text>
+            <text class="muted order__meta">{{item.orderedByName}} 点的 · {{item.createdAtText}}</text>
             <view class="order__actions">
-              <view class="btn btn--sm btn--primary" data-id="{{item._id}}" bindtap="onStart">开始做</view>
-              <view class="btn btn--sm btn--danger" data-id="{{item._id}}" data-name="{{item.dishName}}" bindtap="onDelete">删除</view>
+              <view class="btn btn--sm btn--primary" data-id="{{item._id}}" bindtap="onPrepare">标记已准备</view>
+              <view class="btn btn--sm btn--quiet" data-id="{{item._id}}" data-name="{{item.dishName}}" bindtap="onDelete">撤下</view>
             </view>
           </view>
         </view>
       </view>
-      <view wx:else class="group__empty">还没有待做的菜</view>
+      <view wx:else class="group__empty">这一组已经清空了</view>
     </view>
 
-    <!-- 正在做 -->
-    <view class="group">
-      <view class="group__title">
-        <text class="dot dot--cooking"></text>
-        <text>正在做</text>
-        <text class="group__count">{{cooking.length}}</text>
+    <view class="section section--prepared">
+      <view class="section__head">
+        <view>
+          <text class="section__kicker">可以开饭</text>
+          <text class="section__title">已准备</text>
+        </view>
+        <text class="section__count">{{prepared.length}} 道</text>
       </view>
-      <view wx:if="{{cooking.length}}">
-        <view wx:for="{{cooking}}" wx:key="_id" class="card order">
+
+      <view wx:if="{{prepared.length}}" class="order-list">
+        <view wx:for="{{prepared}}" wx:key="_id" class="card order order--prepared">
           <image class="order__img" src="{{item.dishImage}}" mode="aspectFill" lazy-load></image>
-          <view class="flex-1">
+          <view class="flex-1 order__body">
             <view class="row gap-8">
               <text class="order__name">{{item.dishName}}</text>
               <text wx:if="{{item.quantity > 1}}" class="order__qty">×{{item.quantity}}</text>
             </view>
-            <text class="muted">{{item.cookingByName}} 正在做</text>
-            <view class="order__actions">
-              <view class="btn btn--sm btn--accent" data-id="{{item._id}}" bindtap="onFinish">好了 ✓</view>
-            </view>
+            <text class="muted order__meta">{{item.preparedByName || item.doneByName || item.cookingByName || '家里人'}} 已准备好</text>
           </view>
+          <text class="order__ready">✓</text>
         </view>
       </view>
-      <view wx:else class="group__empty">暂时没有正在做的菜</view>
-    </view>
-
-    <!-- 已完成 -->
-    <view class="group">
-      <view class="group__title" bindtap="toggleDone">
-        <text class="dot dot--done"></text>
-        <text>已完成</text>
-        <text class="group__count">{{done.length}}</text>
-        <text class="group__toggle">{{showDone ? '收起 ▴' : '展开 ▾'}}</text>
-      </view>
-      <block wx:if="{{showDone}}">
-        <view wx:if="{{done.length}}">
-          <view wx:for="{{done}}" wx:key="_id" class="card order order--done">
-            <image class="order__img" src="{{item.dishImage}}" mode="aspectFill" lazy-load></image>
-            <view class="flex-1">
-              <view class="row gap-8">
-                <text class="order__name">{{item.dishName}}</text>
-                <text wx:if="{{item.quantity > 1}}" class="order__qty">×{{item.quantity}}</text>
-              </view>
-              <text class="muted">{{item.doneByName}} 已完成 · {{item.createdAtText}}</text>
-            </view>
-            <text class="order__check">✓</text>
-          </view>
-        </view>
-        <view wx:else class="group__empty">还没有完成的菜</view>
-      </block>
+      <view wx:else class="group__empty">还没有准备好的菜</view>
     </view>
 
     <view class="footer">
-      <view class="btn btn--ghost footer__logs" bindtap="goLogs">📝 操作记录</view>
-      <view class="btn btn--danger footer__close" bindtap="onCloseMeal">结束这一餐</view>
+      <view class="btn btn--ghost footer__logs" bindtap="goLogs">操作记录</view>
+      <view class="btn btn--primary footer__close" bindtap="onCloseMeal">结束这一餐</view>
     </view>
   </block>
 </view>

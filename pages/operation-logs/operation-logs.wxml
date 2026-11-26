@@ -1,30 +1,33 @@
-<view class="page">
-  <view wx:if="{{mealLabel}}" class="logs-head">
-    <text class="logs-head__label">{{mealLabel}}</text>
-    <text class="muted">共 {{logs.length}} 条操作</text>
+<view class="page logs-page">
+  <view class="logs-head">
+    <text class="eyebrow">这一餐的动静</text>
+    <view class="row-between logs-head__row">
+      <text class="logs-head__label">{{mealLabel || '操作记录'}}</text>
+      <text class="muted">共 {{logs.length}} 条</text>
+    </view>
   </view>
 
-  <view wx:if="{{loading}}" class="empty"><text class="empty__emoji">⏳</text><text>加载中...</text></view>
+  <view wx:if="{{loading}}" class="empty"><text>正在读取记录…</text></view>
 
-  <block wx:elif="{{logs.length}}">
-    <view wx:for="{{logs}}" wx:key="_id" class="card log">
-      <image class="avatar avatar--sm" src="{{item.operatorAvatar || '/images/default-avatar.png'}}" mode="aspectFill"></image>
-      <view class="flex-1 log__body">
+  <view wx:elif="{{logs.length}}" class="timeline">
+    <view wx:for="{{logs}}" wx:key="_id" class="timeline__item">
+      <view class="timeline__rail">
+        <text class="timeline__dot timeline__dot--{{item.action}}"></text>
+      </view>
+      <view class="log">
         <view class="log__line">
           <text class="log__operator">{{item.operatorName}}</text>
-          <text class="log__action log__action--{{item.action}}">{{item.actionText}}</text>
-          <text class="log__dish">{{item.dishName}}</text>
+          <text class="log__action">{{item.actionText}}</text>
         </view>
-        <view class="muted log__meta">
-          <text wx:if="{{item.action === 'delete'}}">来自 {{item.orderedByName}} 的点菜 · </text>
-          <text>操作前状态：{{item.statusText}} · {{item.timeText}}</text>
-        </view>
+        <text class="log__dish">{{item.dishName}}</text>
+        <text class="log__meta">{{item.timeText}}</text>
+        <text wx:if="{{item.action === 'delete'}}" class="log__note">这道菜由 {{item.orderedByName}} 点选</text>
       </view>
     </view>
-  </block>
+  </view>
 
   <view wx:else class="empty">
-    <text class="empty__emoji">📝</text>
-    <text>还没有操作记录</text>
+    <view class="empty-title">还没有操作记录</view>
+    <text>点菜或准备菜品后，记录会出现在这里。</text>
   </view>
 </view>

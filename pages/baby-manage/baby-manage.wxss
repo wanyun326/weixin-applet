@@ -8,7 +8,7 @@
   width: 88rpx;
   height: 88rpx;
   border-radius: 50%;
-  background: #FFF3D6;
+  background: #F4E8D7;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -57,12 +57,12 @@
   display: flex;
   align-items: center;
   min-height: 92rpx;
-  border-bottom: 1rpx solid #EEF0F4;
+  border-bottom: 1rpx solid #E5DDD1;
 }
 
 .field__label {
   width: 160rpx;
-  color: #6B6F76;
+  color: #6E6258;
 }
 
 .field__input {
@@ -71,7 +71,7 @@
 
 .field__picker {
   flex: 1;
-  color: #2D2A26;
+  color: #302A24;
 }
 
 .sheet__actions {

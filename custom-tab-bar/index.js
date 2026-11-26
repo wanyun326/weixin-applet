@@ -4,10 +4,10 @@
  * 家庭未开启辅食推荐时隐藏「辅食」入口。
  */
 const ALL_TABS = [
-  { pagePath: '/pages/home/home', text: '点菜', icon: '🍽️' },
-  { pagePath: '/pages/menu/menu', text: '菜单', icon: '🍳' },
-  { pagePath: '/pages/baby-food/baby-food', text: '辅食', icon: '🥣', needBaby: true },
-  { pagePath: '/pages/members/members', text: '成员', icon: '👨‍👩‍👧' }
+  { pagePath: '/pages/home/home', text: '点菜' },
+  { pagePath: '/pages/menu/menu', text: '菜单' },
+  { pagePath: '/pages/baby-food/baby-food', text: '辅食', needBaby: true },
+  { pagePath: '/pages/members/members', text: '成员' }
 ];
 
 Component({

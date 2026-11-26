@@ -1,30 +1,32 @@
-/* ==========================================================================
-   全局样式 · 家庭点菜小程序
-   配色：以暖橙为主色（有食欲），绿色为辅助色（完成/正向），浅灰底
-   ========================================================================== */
+/* 家庭饭桌手账：米纸底、陶土红与鼠尾草绿，减少模板化的高饱和渐变和胶囊元素。 */
 
 page {
-  --primary: #FF7043;
-  --primary-deep: #F4511E;
-  --primary-soft: #FFE7DE;
-  --accent: #26A69A;
-  --accent-soft: #DFF3F0;
-  --pending: #FFB300;
-  --pending-soft: #FFF3D6;
-  --cooking: #FF7043;
-  --cooking-soft: #FFE7DE;
-  --done: #26A69A;
-  --done-soft: #DFF3F0;
-  --text: #2D2A26;
-  --text-2: #6B6F76;
-  --text-3: #9AA0A6;
-  --line: #EEF0F4;
-  --bg: #F5F6FA;
-  --card: #FFFFFF;
+  --primary: #B85434;
+  --primary-deep: #8D3D26;
+  --primary-soft: #F2E1D8;
+  --accent: #4F7564;
+  --accent-deep: #355746;
+  --accent-soft: #E5EDE7;
+  --pending: #AE7A31;
+  --pending-soft: #F4E8D7;
+  --cooking: #B85434;
+  --cooking-soft: #F2E1D8;
+  --done: #4F7564;
+  --done-soft: #E5EDE7;
+  --danger: #A94A3A;
+  --text: #302A24;
+  --text-2: #6E6258;
+  --text-3: #978A7D;
+  --line: #E5DDD1;
+  --line-strong: #D6CABC;
+  --surface-soft: #F3EEE6;
+  --surface-sage: #F1F5F1;
+  --bg: #F3EFE7;
+  --card: #FFFDF8;
   background-color: var(--bg);
   color: var(--text);
   font-size: 28rpx;
-  font-family: -apple-system, "PingFang SC", "Helvetica Neue", Helvetica, sans-serif;
+  font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", sans-serif;
 }
 
 view, text, button, input, textarea, image, scroll-view {
@@ -36,6 +38,9 @@ view, text, button, input, textarea, image, scroll-view {
   min-height: 100vh;
   padding: 24rpx;
   padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
+  background:
+    radial-gradient(circle at 100% 0, rgba(184, 84, 52, 0.055), transparent 360rpx),
+    var(--bg);
 }
 
 .page--tab {
@@ -70,9 +75,10 @@ view, text, button, input, textarea, image, scroll-view {
 /* ---- 卡片 ---- */
 .card {
   background: var(--card);
-  border-radius: 16rpx;
+  border: 1rpx solid var(--line);
+  border-radius: 12rpx;
   padding: 24rpx;
-  box-shadow: 0 4rpx 20rpx rgba(45, 42, 38, 0.05);
+  box-shadow: 0 2rpx 8rpx rgba(64, 50, 38, 0.025);
 }
 
 .card + .card {
@@ -81,8 +87,9 @@ view, text, button, input, textarea, image, scroll-view {
 
 /* ---- 文本 ---- */
 .title {
+  font-family: "Songti SC", "STSong", serif;
   font-size: 34rpx;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text);
 }
 
@@ -103,8 +110,9 @@ view, text, button, input, textarea, image, scroll-view {
 }
 
 .section-title {
+  font-family: "Songti SC", "STSong", serif;
   font-size: 30rpx;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text);
   margin: 8rpx 0 16rpx;
 }
@@ -118,36 +126,36 @@ button::after {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 80rpx;
-  padding: 0 32rpx;
-  border-radius: 40rpx;
-  font-size: 28rpx;
+  height: 76rpx;
+  padding: 0 28rpx;
+  border-radius: 10rpx;
+  font-size: 27rpx;
   line-height: 1;
-  background: #F0F1F5;
+  background: var(--surface-soft);
   color: var(--text);
   border: none;
 }
 
 .btn--primary {
-  background: linear-gradient(135deg, #FF8A5B, #FF7043);
+  background: var(--primary);
   color: #fff;
 }
 
 .btn--accent {
-  background: linear-gradient(135deg, #35C0B2, #26A69A);
+  background: var(--accent);
   color: #fff;
 }
 
 .btn--ghost {
-  background: #fff;
+  background: var(--card);
   color: var(--text-2);
-  border: 1rpx solid var(--line);
+  border: 1rpx solid var(--line-strong);
 }
 
 .btn--danger {
-  background: #fff;
-  color: #E4572E;
-  border: 1rpx solid #FFD9CC;
+  background: var(--card);
+  color: var(--danger);
+  border: 1rpx solid #E5C7C0;
 }
 
 .btn--block {
@@ -156,10 +164,10 @@ button::after {
 }
 
 .btn--sm {
-  height: 60rpx;
-  padding: 0 24rpx;
-  font-size: 24rpx;
-  border-radius: 30rpx;
+  height: 58rpx;
+  padding: 0 20rpx;
+  font-size: 23rpx;
+  border-radius: 8rpx;
 }
 
 .btn[disabled],
@@ -173,9 +181,9 @@ button::after {
   align-items: center;
   height: 40rpx;
   padding: 0 16rpx;
-  border-radius: 20rpx;
+  border-radius: 6rpx;
   font-size: 22rpx;
-  background: #F0F1F5;
+  background: var(--surface-soft);
   color: var(--text-2);
 }
 
@@ -221,9 +229,7 @@ button::after {
 }
 
 .empty__emoji {
-  font-size: 96rpx;
-  display: block;
-  margin-bottom: 16rpx;
+  display: none;
 }
 
 /* ---- 分割 ---- */

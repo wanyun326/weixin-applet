@@ -1,16 +1,22 @@
-// 操作记录：当前/指定当餐的所有操作日志，按时间倒序，只读不可删
+// 操作记录：通过云函数读取当前餐次日志，避免客户端数据库权限导致空列表
 const db = require('../../utils/db');
 const store = require('../../utils/store');
 const util = require('../../utils/util');
 
 const ACTION_TEXT = {
   add: '点了菜',
-  start: '开始做',
-  done: '做好了',
-  delete: '删除了待做'
+  prepare: '标记为已准备',
+  start: '开始准备',
+  done: '标记为已准备',
+  delete: '撤下待准备'
 };
 
-const STATUS_TEXT = { pending: '待做', cooking: '正在做', done: '已完成' };
+const STATUS_TEXT = {
+  pending: '待准备',
+  prepared: '已准备',
+  cooking: '已准备',
+  done: '已准备'
+};
 
 Page({
   data: {
@@ -44,18 +50,21 @@ Page({
   async loadLogs() {
     this.setData({ loading: true });
     try {
-      const list = await db.getAll('operation_logs', {
-        where: { familyId: this.data.familyId, mealId: this.data.mealId },
-        orderBy: 'createdAt',
-        order: 'desc'
+      const data = await db.callFunction('addOrder', {
+        action: 'logs',
+        familyId: this.data.familyId,
+        mealId: this.data.mealId
       });
+      const list = (data && data.logs) || [];
       this.setData({
-        logs: list.map((log) => ({
-          ...log,
-          actionText: ACTION_TEXT[log.action] || log.action,
-          statusText: STATUS_TEXT[log.orderStatusBefore] || log.orderStatusBefore,
-          timeText: util.full(log.createdAt)
-        })),
+        logs: list
+          .map((log) => ({
+            ...log,
+            actionText: ACTION_TEXT[log.action] || log.action,
+            statusText: STATUS_TEXT[log.orderStatusBefore] || log.orderStatusBefore,
+            timeText: util.full(log.createdAt)
+          }))
+          .sort((left, right) => new Date(right.createdAt) - new Date(left.createdAt)),
         loading: false
       });
     } catch (err) {

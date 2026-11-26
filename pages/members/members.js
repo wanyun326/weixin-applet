@@ -3,6 +3,7 @@ const app = getApp();
 const db = require('../../utils/db');
 const store = require('../../utils/store');
 const util = require('../../utils/util');
+const share = require('../../utils/share');
 
 Page({
   data: {
@@ -18,6 +19,7 @@ Page({
   },
 
   onShow() {
+    share.enableShareMenu();
     if (this.getTabBar && this.getTabBar()) {
       this.getTabBar().setActive('/pages/members/members');
     }
@@ -90,10 +92,11 @@ Page({
   },
 
   onShareAppMessage() {
-    return {
-      title: `邀请你加入「${this.data.familyName}」一起点菜`,
-      path: `/pages/index/index?inviteCode=${this.data.inviteCode}`
-    };
+    return share.familyShare(this.data.familyName, this.data.inviteCode);
+  },
+
+  onShareTimeline() {
+    return share.timelineShare(this.data.familyName, this.data.inviteCode);
   },
 
   onRemove(e) {

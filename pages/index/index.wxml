@@ -73,7 +73,7 @@
       data-index="{{index}}"
       bindtap="enterFamily"
     >
-      <view class="family__badge">🏠</view>
+      <view class="family__badge">家</view>
       <view class="flex-1">
         <view class="row gap-8">
           <text class="title">{{item.name}}</text>

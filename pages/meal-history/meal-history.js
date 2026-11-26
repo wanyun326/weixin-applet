@@ -63,7 +63,12 @@ Page({
       this.setData({
         orders: list.map((o) => ({
           ...o,
-          statusText: { pending: '待做', cooking: '正在做', done: '已完成' }[o.status]
+          statusText: {
+            pending: '待准备',
+            prepared: '已准备',
+            cooking: '已准备',
+            done: '已准备'
+          }[o.status]
         })),
         ordersLoading: false
       });

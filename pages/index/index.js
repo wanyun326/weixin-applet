@@ -3,6 +3,7 @@ const app = getApp();
 const db = require('../../utils/db');
 const store = require('../../utils/store');
 const util = require('../../utils/util');
+const share = require('../../utils/share');
 
 /** 仅在开发版显示初始化辅助信息，不会出现在正式版 */
 function isDevelopVersion() {
@@ -40,6 +41,7 @@ Page({
   },
 
   onShow() {
+    share.enableShareMenu();
     this.refresh();
   },
 
@@ -240,5 +242,13 @@ Page({
       babyFoodEnabled: family.babyFoodEnabled
     });
     wx.switchTab({ url: '/pages/home/home' });
+  },
+
+  onShareAppMessage() {
+    return share.appShare();
+  },
+
+  onShareTimeline() {
+    return share.timelineShare('', '');
   }
 });

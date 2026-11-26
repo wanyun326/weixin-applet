@@ -10,6 +10,8 @@ module.exports = {
   // 业务常量
   ORDER_STATUS: {
     PENDING: 'pending',
+    PREPARED: 'prepared',
+    // 兼容历史订单中的旧状态，界面统一显示为「已准备」
     COOKING: 'cooking',
     DONE: 'done'
   },

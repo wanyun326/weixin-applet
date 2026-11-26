@@ -8,7 +8,7 @@
 
 .meal__toggle {
   font-size: 26rpx;
-  color: #FF7043;
+  color: #B85434;
 }
 
 .meal__loading {
@@ -49,7 +49,7 @@
 
 .meal-record__label {
   margin-bottom: 10rpx;
-  color: #FF7043;
+  color: #B85434;
   font-size: 24rpx;
   font-weight: 600;
 }

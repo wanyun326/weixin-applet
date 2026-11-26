@@ -1,28 +1,29 @@
 <view class="page page--tab">
-  <!-- 顶部信息 -->
   <view class="header">
-    <view class="row-between">
+    <text class="header__eyebrow">今日饭桌</text>
+    <view class="header__top">
       <view class="header__family" bindtap="goSwitchFamily">
         <text class="header__name">{{familyName}}</text>
-        <text class="header__switch">切换 ▾</text>
+        <text class="header__switch">切换</text>
       </view>
-      <view class="header__tools">
-        <text class="header__manage" bindtap="goCustomMenu">自定义菜单</text>
-        <text class="header__history" bindtap="goHistory">历史当餐</text>
-      </view>
+      <button class="header__share" open-type="share">分享给家人</button>
     </view>
     <view class="header__meal">
-      <text wx:if="{{meal}}" class="header__meal-label">🍽️ {{mealLabel}}</text>
+      <text wx:if="{{meal}}" class="header__meal-label">{{mealLabel}}</text>
       <text wx:else class="header__meal-label header__meal-label--idle">还没有进行中的一餐</text>
-      <text wx:if="{{meal}}" class="header__menu-link" bindtap="goMenu">查看菜单 ›</text>
+      <text wx:if="{{meal}}" class="header__menu-link" bindtap="goMenu">查看备餐进度</text>
+    </view>
+    <view class="header__links">
+      <text bindtap="goCustomMenu">菜单管理</text>
+      <text bindtap="goHistory">历史当餐</text>
     </view>
   </view>
 
   <!-- 没有当餐 -->
   <view wx:if="{{!meal && !loading}}" class="card start-card">
-    <text class="empty__emoji">🥢</text>
+    <text class="start-card__mark">新的餐次</text>
     <view class="start-card__title">开始新的一餐</view>
-    <view class="muted">开启后，家庭成员就可以一起点菜啦</view>
+    <view class="muted">开启后，家里人就可以一起挑今天想吃的菜。</view>
     <view class="btn btn--primary start-card__btn {{starting ? 'btn--disabled' : ''}}" bindtap="onStartMeal">
       {{starting ? '开启中...' : '开始新的一餐'}}
     </view>
@@ -31,7 +32,7 @@
   <!-- 菜品 -->
   <block wx:if="{{meal}}">
     <view class="search">
-      <text class="search__icon">🔍</text>
+      <text class="search__icon">搜</text>
       <input
         class="search__input"
         placeholder="搜索菜名、描述或分类"
@@ -108,8 +109,8 @@
     </block>
 
     <view wx:else class="empty">
-      <text class="empty__emoji">{{searchKeyword ? '🔍' : '🍽️'}}</text>
-      <text>{{searchKeyword ? '没有找到相关菜品' : '这个分类还没有菜品'}}</text>
+      <text class="empty-title">{{searchKeyword ? '没有找到相关菜品' : '这个分类还没有菜品'}}</text>
+      <text>{{searchKeyword ? '换个菜名或分类试试' : '可以在菜单管理里添加家里的拿手菜'}}</text>
     </view>
   </block>
 </view>

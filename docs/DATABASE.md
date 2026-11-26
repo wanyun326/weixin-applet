@@ -97,9 +97,10 @@
 | `dishId` / `dishName` / `dishImage` | string | 菜品信息（后两者冗余） |
 | `orderedBy` / `orderedByName` | string | 点菜人 |
 | `quantity` | number | 数量（当前固定为 1，保留字段兼容） |
-| `status` | string | `pending` / `cooking` / `done` |
-| `cookingBy` / `cookingByName` | string | 开始做的人 |
-| `doneBy` / `doneByName` | string | 完成的人 |
+| `status` | string | `pending` / `prepared`；历史数据兼容 `cooking` / `done` |
+| `preparedBy` / `preparedByName` / `preparedAt` | string / date | 标记已准备的人和操作时间 |
+| `cookingBy` / `cookingByName` | string | 历史兼容字段：开始准备的人 |
+| `doneBy` / `doneByName` | string | 历史兼容字段：完成的人 |
 | `createdAt` / `updatedAt` | date | 时间 |
 
 ### operation_logs（操作记录）
@@ -108,7 +109,7 @@
 | --- | --- | --- |
 | `_id` | string | 日志 ID |
 | `familyId` / `mealId` / `orderId` | string | 关联信息 |
-| `action` | string | `add` / `start` / `done` / `delete` |
+| `action` | string | `add` / `prepare` / `delete`；历史兼容 `start` / `done` |
 | `dishId` / `dishName` | string | 目标菜品 |
 | `orderedBy` / `orderedByName` | string | 原点菜人 |
 | `orderStatusBefore` | string | 操作前状态 |

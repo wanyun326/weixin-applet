@@ -107,7 +107,32 @@ check(
   `最大图片 ${(largestImage.bytes / 1024).toFixed(1)}KB ≤ 200KB`
 );
 
-console.log('\n[6] 辅食推荐算法（同日稳定 + 换一道生效）');
+console.log('\n[6] 分享、备餐状态与操作记录接入');
+[
+  ['pages/index/index.js', '首页'],
+  ['pages/home/home.js', '点菜页'],
+  ['pages/menu/menu.js', '菜单页'],
+  ['pages/members/members.js', '成员页']
+].forEach(([file, label]) => {
+  const source = fs.readFileSync(path.join(ROOT, file), 'utf8');
+  check(source.includes('onShareAppMessage'), `${label}支持分享给好友`);
+  check(source.includes('onShareTimeline'), `${label}支持分享到朋友圈`);
+});
+const menuSource = fs.readFileSync(path.join(ROOT, 'pages/menu/menu.js'), 'utf8');
+const menuMarkup = fs.readFileSync(path.join(ROOT, 'pages/menu/menu.wxml'), 'utf8');
+check(menuSource.includes("'prepare'"), '菜单页一键标记已准备');
+check(menuMarkup.includes('已准备') && !menuMarkup.includes('正在做'), '菜单仅展示待准备与已准备');
+check(
+  menuMarkup.includes('prepared') && !/order--prepared[\s\S]*onDelete/.test(menuMarkup),
+  '已准备菜品不渲染删除按钮'
+);
+const logsSource = fs.readFileSync(
+  path.join(ROOT, 'pages/operation-logs/operation-logs.js'),
+  'utf8'
+);
+check(logsSource.includes("action: 'logs'"), '操作记录通过云函数读取');
+
+console.log('\n[7] 辅食推荐算法（同日稳定 + 换一道生效）');
 const recommend = require('../utils/recommend');
 const opts = { babyId: 'baby1', date: '2025-01-15', ageMonths: 8, categories: ['早餐', '午餐', '晚餐', '加餐'] };
 const a = recommend.recommendDaily(foods, opts).map((r) => (r.food ? r.food.name : null));
@@ -119,7 +144,7 @@ const swapped = recommend.recommendDaily(foods, { ...opts, saltMap: { 早餐: 1 
 check(a[0] !== undefined, '推荐结果非空');
 check(swapped[0] !== a[0] || foods.filter((f) => f.category === '早餐' && 8 >= f.minMonth && 8 <= f.maxMonth).length <= 1, '换一道会切换候选');
 
-console.log('\n[7] 云函数核心规则');
+console.log('\n[8] 云函数核心规则');
 const cloudLogic = spawnSync(
   process.execPath,
   [path.join(ROOT, 'scripts/verify-cloud-logic.js')],

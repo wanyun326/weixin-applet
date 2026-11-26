@@ -14,16 +14,16 @@
         <view class="title setting__title">宝宝辅食推荐</view>
         <view class="muted">开启后在底部导航显示「辅食」</view>
       </view>
-      <switch checked="{{babyFoodEnabled}}" color="#FF7043" bindchange="onToggleBabyFood" />
+      <switch checked="{{babyFoodEnabled}}" color="#B85434" bindchange="onToggleBabyFood" />
     </view>
     <view class="divider"></view>
     <view class="row-between" bindtap="goBabyManage">
-      <text>👶 宝宝管理</text>
+      <text>宝宝管理</text>
       <text class="setting__arrow">›</text>
     </view>
     <view class="divider"></view>
     <view class="row-between" bindtap="goHistory">
-      <text>🗂️ 历史当餐</text>
+      <text>历史当餐</text>
       <text class="setting__arrow">›</text>
     </view>
   </view>

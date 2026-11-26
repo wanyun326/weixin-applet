@@ -5,14 +5,14 @@
 
 .invite__label {
   font-size: 26rpx;
-  color: #6B6F76;
+  color: #6E6258;
 }
 
 .invite__code {
   font-size: 64rpx;
   font-weight: 700;
   letter-spacing: 10rpx;
-  color: #FF7043;
+  color: #B85434;
   margin: 12rpx 0 8rpx;
 }
 
