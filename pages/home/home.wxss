@@ -168,6 +168,14 @@
   color: #855E25;
 }
 
+.picked__withdraw {
+  padding-left: 12rpx;
+  border-left: 1rpx solid rgba(133, 94, 37, 0.28);
+  color: var(--danger);
+  font-size: 22rpx;
+  font-weight: 600;
+}
+
 .picked__item--cooking {
   background: var(--done-soft);
   color: var(--accent-deep);
@@ -358,6 +366,12 @@
   color: var(--accent-deep);
   border: 1rpx solid #BFD1C5;
   font-weight: 600;
+}
+
+.dish__withdraw {
+  border: 1rpx solid rgba(169, 74, 58, 0.34);
+  background: transparent;
+  color: var(--danger);
 }
 
 .empty-title {

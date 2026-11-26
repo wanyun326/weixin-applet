@@ -6,7 +6,8 @@
   z-index: 1000;
   display: flex;
   align-items: stretch;
-  height: 104rpx;
+  height: 132rpx;
+  padding-top: 12rpx;
   padding-bottom: env(safe-area-inset-bottom);
   background: rgba(255, 253, 248, 0.97);
   border-top: 1rpx solid #E5DDD1;
@@ -17,19 +18,128 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  padding-top: 6rpx;
   color: #978A7D;
 }
 
+.tabbar__icon {
+  position: relative;
+  flex: 0 0 32rpx;
+  width: 34rpx;
+  height: 32rpx;
+  margin-bottom: 13rpx;
+  color: inherit;
+}
+
+/* 餐盘 */
+.tabbar__icon--order {
+  box-sizing: border-box;
+  border: 2rpx solid currentColor;
+  border-radius: 50%;
+}
+
+.tabbar__icon--order::after {
+  content: "";
+  position: absolute;
+  top: 6rpx;
+  right: 6rpx;
+  bottom: 6rpx;
+  left: 6rpx;
+  border: 2rpx solid currentColor;
+  border-radius: 50%;
+  opacity: 0.55;
+}
+
+/* 菜单清单 */
+.tabbar__icon--menu {
+  box-sizing: border-box;
+  border: 2rpx solid currentColor;
+  border-radius: 6rpx;
+}
+
+.tabbar__icon--menu::before {
+  content: "";
+  position: absolute;
+  top: 8rpx;
+  right: 7rpx;
+  left: 7rpx;
+  height: 2rpx;
+  background: currentColor;
+  box-shadow: 0 7rpx 0 currentColor, 0 14rpx 0 currentColor;
+}
+
+/* 辅食碗 */
+.tabbar__icon--food {
+  box-sizing: border-box;
+  height: 24rpx;
+  margin-top: 8rpx;
+  border: 2rpx solid currentColor;
+  border-top: 0;
+  border-radius: 0 0 18rpx 18rpx;
+}
+
+.tabbar__icon--food::before {
+  content: "";
+  position: absolute;
+  top: -3rpx;
+  right: -3rpx;
+  left: -3rpx;
+  height: 2rpx;
+  border-radius: 2rpx;
+  background: currentColor;
+}
+
+.tabbar__icon--food::after {
+  content: "";
+  position: absolute;
+  top: -13rpx;
+  left: 8rpx;
+  width: 2rpx;
+  height: 7rpx;
+  border-radius: 2rpx;
+  background: currentColor;
+  box-shadow: 8rpx 2rpx 0 currentColor;
+  opacity: 0.6;
+}
+
+/* 成员 */
+.tabbar__icon--members::before {
+  content: "";
+  position: absolute;
+  top: 1rpx;
+  left: 11rpx;
+  width: 10rpx;
+  height: 10rpx;
+  box-sizing: border-box;
+  border: 2rpx solid currentColor;
+  border-radius: 50%;
+}
+
+.tabbar__icon--members::after {
+  content: "";
+  position: absolute;
+  right: 4rpx;
+  bottom: 1rpx;
+  left: 4rpx;
+  height: 13rpx;
+  box-sizing: border-box;
+  border: 2rpx solid currentColor;
+  border-bottom: 0;
+  border-radius: 16rpx 16rpx 0 0;
+}
+
 .tabbar__text {
-  font-size: 24rpx;
-  line-height: 1.2;
+  display: block;
+  height: 28rpx;
+  font-size: 22rpx;
+  line-height: 28rpx;
 }
 
 .tabbar__mark {
-  width: 20rpx;
+  width: 22rpx;
   height: 3rpx;
-  margin-top: 10rpx;
+  margin-top: 6rpx;
   border-radius: 2rpx;
   background: transparent;
 }
@@ -41,4 +151,8 @@
 
 .tabbar__item.is-active .tabbar__mark {
   background: #B85434;
+}
+
+.tabbar__item.is-active .tabbar__icon {
+  transform: translateY(-1rpx);
 }

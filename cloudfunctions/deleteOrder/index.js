@@ -13,7 +13,7 @@ const {
 } = require('./common');
 
 exports.main = handler(async (event, openid) => {
-  const { familyId, orderId } = event;
+  const { familyId, orderId, ownerOnly = false } = event;
   if (!orderId) return fail('缺少订单信息');
   const member = await assertMember(familyId, openid);
   const operatorName = member.nickname || '成员';
@@ -33,6 +33,9 @@ exports.main = handler(async (event, openid) => {
     if (!order) throw createError('订单不存在', 404);
     if (order.familyId !== familyId) {
       throw createError('无权操作该订单', 403);
+    }
+    if (ownerOnly && order.orderedBy !== openid) {
+      throw createError('只能撤下自己点的菜', 403);
     }
     if (order.status !== 'pending') {
       throw createError('已准备的菜不可删除', 409);

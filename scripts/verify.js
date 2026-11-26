@@ -131,6 +131,26 @@ const logsSource = fs.readFileSync(
   'utf8'
 );
 check(logsSource.includes("action: 'logs'"), '操作记录通过云函数读取');
+const tabBarSource = fs.readFileSync(
+  path.join(ROOT, 'custom-tab-bar/index.js'),
+  'utf8'
+);
+const tabBarMarkup = fs.readFileSync(
+  path.join(ROOT, 'custom-tab-bar/index.wxml'),
+  'utf8'
+);
+const homeSource = fs.readFileSync(path.join(ROOT, 'pages/home/home.js'), 'utf8');
+const homeMarkup = fs.readFileSync(path.join(ROOT, 'pages/home/home.wxml'), 'utf8');
+check(
+  tabBarSource.includes('icon:') && tabBarMarkup.includes('tabbar__icon'),
+  '底部导航包含对应图标'
+);
+check(
+  homeSource.includes('ownerOnly: true') &&
+    homeMarkup.includes('onWithdrawOrder') &&
+    homeMarkup.includes('onWithdrawDish'),
+  '点菜页支持撤下自己点的待准备菜品'
+);
 
 console.log('\n[7] 辅食推荐算法（同日稳定 + 换一道生效）');
 const recommend = require('../utils/recommend');

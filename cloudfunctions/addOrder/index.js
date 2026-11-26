@@ -42,6 +42,8 @@ exports.main = handler(async (event, openid) => {
         dishImage: order.dishImage,
         status: order.status,
         orderedByName: order.orderedByName,
+        canWithdraw:
+          order.orderedBy === openid && order.status === 'pending',
         cookingBy: order.cookingBy || '',
         cookingByName: order.cookingByName || '',
         doneBy: order.doneBy || '',

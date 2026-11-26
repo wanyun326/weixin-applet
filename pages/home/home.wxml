@@ -58,6 +58,12 @@
           >
             <text class="picked__name">{{item.dishName}}</text>
             <text class="picked__status">{{item.statusText}}</text>
+            <text
+              wx:if="{{item.canWithdraw}}"
+              class="picked__withdraw"
+              data-id="{{item._id}}"
+              catchtap="onWithdrawOrder"
+            >撤下</text>
           </view>
         </view>
       </scroll-view>
@@ -101,10 +107,21 @@
           <text wx:else class="muted dish__desc">{{item.desc}}</text>
         </view>
         <view
-          class="btn btn--sm {{item.ordered ? 'dish__add--selected' : 'btn--primary'}} dish__add"
+          wx:if="{{item.ordered && item.canWithdraw}}"
+          class="btn btn--sm dish__withdraw dish__add {{withdrawingOrderId === item.orderId ? 'btn--disabled' : ''}}"
+          data-id="{{item._id}}"
+          bindtap="onWithdrawDish"
+        >{{withdrawingOrderId === item.orderId ? '撤下中' : '撤下'}}</view>
+        <view
+          wx:elif="{{item.ordered}}"
+          class="btn btn--sm dish__add dish__add--selected"
+        >{{item.orderStatusText === '已准备' ? '已准备' : '家人已点'}}</view>
+        <view
+          wx:else
+          class="btn btn--sm btn--primary dish__add"
           data-id="{{item._id}}"
           bindtap="onAddDish"
-        >{{item.ordered ? '已点 ✓' : '＋ 加一道'}}</view>
+        >＋ 加一道</view>
       </view>
     </block>
 

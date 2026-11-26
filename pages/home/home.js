@@ -51,7 +51,8 @@ Page({
     orderedDishes: [],
     inviteCode: '',
     loading: true,
-    starting: false
+    starting: false,
+    withdrawingOrderId: ''
   },
 
   onShow() {
@@ -255,6 +256,8 @@ Page({
         return {
           ...dish,
           ordered: !!order,
+          orderId: order ? order._id : '',
+          canWithdraw: !!(order && order.canWithdraw),
           orderStatusText: order ? order.statusText : ''
         };
       });
@@ -348,6 +351,7 @@ Page({
       const order = decorateOrder({
         ...added,
         _id: added.orderId,
+        canWithdraw: true,
         createdAt: new Date()
       });
       this.applyOrders(mergeOrders(this.data.orderedDishes, [order]));
@@ -369,6 +373,62 @@ Page({
       }
       wx.showToast({ title: err.message, icon: 'none' });
     }
+  },
+
+  onWithdrawDish(e) {
+    const dishId = e.currentTarget.dataset.id;
+    const order = (this.data.orderedDishes || []).find(
+      (item) => item.dishId === dishId
+    );
+    this.confirmWithdraw(order);
+  },
+
+  onWithdrawOrder(e) {
+    const orderId = e.currentTarget.dataset.id;
+    const order = (this.data.orderedDishes || []).find(
+      (item) => item._id === orderId
+    );
+    this.confirmWithdraw(order);
+  },
+
+  confirmWithdraw(order) {
+    if (!order) return;
+    if (!order.canWithdraw) {
+      wx.showToast({
+        title: order.status === 'pending' ? '只能撤下自己点的菜' : '已准备的菜不能撤下',
+        icon: 'none'
+      });
+      return;
+    }
+    if (this.data.withdrawingOrderId) return;
+
+    wx.showModal({
+      title: '撤下这道菜',
+      content: `确定撤下「${order.dishName}」吗？撤下后可以重新点。`,
+      confirmText: '撤下',
+      confirmColor: '#A94A3A',
+      success: async (res) => {
+        if (!res.confirm) return;
+        this.setData({ withdrawingOrderId: order._id });
+        try {
+          await db.callFunction('deleteOrder', {
+            familyId: this.data.familyId,
+            orderId: order._id,
+            ownerOnly: true
+          });
+          this.applyOrders(
+            this.data.orderedDishes.filter((item) => item._id !== order._id)
+          );
+          wx.showToast({ title: '已撤下', icon: 'success' });
+          this.refreshHomeOrders(this.data.familyId, this.data.meal._id);
+        } catch (err) {
+          this.refreshHomeOrders(this.data.familyId, this.data.meal._id);
+          wx.showToast({ title: err.message, icon: 'none' });
+        } finally {
+          this.setData({ withdrawingOrderId: '' });
+        }
+      }
+    });
   },
 
   goMenu() {

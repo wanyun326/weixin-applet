@@ -394,6 +394,72 @@ async function testMealAndOrderRules() {
     '重复点菜不应产生第二条订单'
   );
 
+  const orderList = await expectCode(
+    addOrder({
+      familyId: 'family-a',
+      mealId: firstMeal.data._id,
+      action: 'list'
+    }),
+    0,
+    '可以读取本餐可撤下状态'
+  );
+  assert.strictEqual(
+    orderList.data.orders.find((order) => order._id === added.data.orderId)
+      .canWithdraw,
+    true,
+    '自己点的待准备菜品应允许撤下'
+  );
+
+  const deleteOrder = loadFunction('deleteOrder');
+  stores.orders['order-other-member'] = {
+    _id: 'order-other-member',
+    familyId: 'family-a',
+    mealId: firstMeal.data._id,
+    dishId: 'dish-other-member',
+    dishName: '别人点的菜',
+    orderedBy: 'user-b',
+    orderedByName: '另一位家人',
+    status: 'pending',
+    createdAt: new Date(),
+    updatedAt: new Date()
+  };
+  await expectCode(
+    deleteOrder({
+      familyId: 'family-a',
+      orderId: 'order-other-member',
+      ownerOnly: true
+    }),
+    403,
+    '点菜页只能撤下自己点的菜'
+  );
+
+  stores.orders['order-own-withdraw'] = {
+    _id: 'order-own-withdraw',
+    familyId: 'family-a',
+    mealId: firstMeal.data._id,
+    dishId: 'dish-own-withdraw',
+    dishName: '自己点的另一道菜',
+    orderedBy: currentOpenid,
+    orderedByName: '晚云',
+    status: 'pending',
+    createdAt: new Date(),
+    updatedAt: new Date()
+  };
+  await expectCode(
+    deleteOrder({
+      familyId: 'family-a',
+      orderId: 'order-own-withdraw',
+      ownerOnly: true
+    }),
+    0,
+    '点菜页可以撤下自己点的待准备菜品'
+  );
+  assert.strictEqual(
+    stores.orders['order-own-withdraw'],
+    undefined,
+    '撤下后订单应被删除'
+  );
+
   const updateOrderStatus = loadFunction('updateOrderStatus');
   const prepared = await expectCode(
     updateOrderStatus({
@@ -410,6 +476,21 @@ async function testMealAndOrderRules() {
     'prepared',
     '订单状态应更新为 prepared'
   );
+  const preparedList = await expectCode(
+    addOrder({
+      familyId: 'family-a',
+      mealId: firstMeal.data._id,
+      action: 'list'
+    }),
+    0,
+    '可以读取已准备订单状态'
+  );
+  assert.strictEqual(
+    preparedList.data.orders.find((order) => order._id === added.data.orderId)
+      .canWithdraw,
+    false,
+    '已准备菜品不应显示撤下入口'
+  );
 
   const logs = await expectCode(
     addOrder({
@@ -420,9 +501,8 @@ async function testMealAndOrderRules() {
     0,
     '家庭成员可以通过云函数读取操作记录'
   );
-  assert.strictEqual(logs.data.logs.length, 2, '点菜和标记已准备应各有一条日志');
+  assert.strictEqual(logs.data.logs.length, 3, '点菜、撤下和标记已准备应完整留痕');
 
-  const deleteOrder = loadFunction('deleteOrder');
   await expectCode(
     deleteOrder({ familyId: 'family-a', orderId: added.data.orderId }),
     409,
@@ -901,12 +981,14 @@ function testHomeOrderState() {
         dishId: 'dish-a',
         dishName: '西红柿炒蛋',
         status: 'pending',
+        canWithdraw: true,
         statusText: '待准备'
       }
     ]);
 
     assert.strictEqual(page.data.orderedDishes[0].dishName, '西红柿炒蛋');
     assert.strictEqual(page.data.dishes[0].ordered, true);
+    assert.strictEqual(page.data.dishes[0].canWithdraw, true);
     assert.strictEqual(page.data.dishes[0].orderStatusText, '待准备');
 
     page.data.searchKeyword = '排骨';
