@@ -5,7 +5,7 @@
         <text class="eyebrow">{{familyName}}</text>
         <text class="menu-head__title">{{hasMeal ? mealLabel : '今天还没有开席'}}</text>
       </view>
-      <button class="menu-head__share" open-type="share">分享</button>
+      <button class="menu-head__share" open-type="share">邀请家人</button>
     </view>
     <view class="menu-head__links">
       <text bindtap="goHistory">历史餐单</text>

@@ -4,7 +4,7 @@
     <view class="invite__label">家庭邀请码</view>
     <view class="invite__code" bindtap="copyCode">{{inviteCode}}</view>
     <view class="muted invite__tip">点击邀请码可复制</view>
-    <button class="btn btn--primary btn--block invite__share" open-type="share">分享给微信好友</button>
+    <button class="btn btn--primary btn--block invite__share" open-type="share">邀请家人加入</button>
   </view>
 
   <!-- 设置 -->

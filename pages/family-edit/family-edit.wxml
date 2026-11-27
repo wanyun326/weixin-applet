@@ -12,6 +12,11 @@
     >加入家庭</view>
   </view>
 
+  <view class="privacy-note">
+    <text class="privacy-note__title">私密家庭空间</text>
+    <text class="privacy-note__text">只有创建人和持邀请码加入的成员可以查看家庭内容，不会公开展示或推荐给陌生人。</text>
+  </view>
+
   <view class="card">
     <!-- 资料区（首次进入需要填写） -->
     <block wx:if="{{needProfile}}">

@@ -449,9 +449,5 @@ Page({
 
   onShareAppMessage() {
     return share.familyShare(this.data.familyName, this.data.inviteCode);
-  },
-
-  onShareTimeline() {
-    return share.timelineShare(this.data.familyName, this.data.inviteCode);
   }
 });

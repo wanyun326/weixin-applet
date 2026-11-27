@@ -115,9 +115,27 @@ console.log('\n[6] 分享、备餐状态与操作记录接入');
   ['pages/members/members.js', '成员页']
 ].forEach(([file, label]) => {
   const source = fs.readFileSync(path.join(ROOT, file), 'utf8');
-  check(source.includes('onShareAppMessage'), `${label}支持分享给好友`);
-  check(source.includes('onShareTimeline'), `${label}支持分享到朋友圈`);
+  check(source.includes('onShareAppMessage'), `${label}支持邀请微信好友`);
+  check(
+    !source.includes('onShareTimeline') && !source.includes('timelineShare'),
+    `${label}未开放朋友圈公开分享`
+  );
 });
+const shareSource = fs.readFileSync(path.join(ROOT, 'utils/share.js'), 'utf8');
+check(
+  shareSource.includes("menus: ['shareAppMessage']") &&
+    !shareSource.includes('shareTimeline'),
+  '分享菜单仅开放微信好友邀请'
+);
+const familyEditMarkup = fs.readFileSync(
+  path.join(ROOT, 'pages/family-edit/family-edit.wxml'),
+  'utf8'
+);
+check(
+  familyEditMarkup.includes('持邀请码加入的成员') &&
+    familyEditMarkup.includes('不会公开展示'),
+  '创建或加入家庭页说明私密可见范围'
+);
 const menuSource = fs.readFileSync(path.join(ROOT, 'pages/menu/menu.js'), 'utf8');
 const menuMarkup = fs.readFileSync(path.join(ROOT, 'pages/menu/menu.wxml'), 'utf8');
 check(menuSource.includes("'prepare'"), '菜单页一键标记已准备');

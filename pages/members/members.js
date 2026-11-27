@@ -95,10 +95,6 @@ Page({
     return share.familyShare(this.data.familyName, this.data.inviteCode);
   },
 
-  onShareTimeline() {
-    return share.timelineShare(this.data.familyName, this.data.inviteCode);
-  },
-
   onRemove(e) {
     const member = this.data.members[e.currentTarget.dataset.index];
     wx.showModal({

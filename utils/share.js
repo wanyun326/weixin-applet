@@ -1,14 +1,13 @@
 /**
- * 小程序分享配置
- * 家庭邀请优先携带邀请码，普通页面分享小程序首页。
+ * 小程序邀请配置
+ * 仅允许通过微信好友发送家庭邀请，不开放朋友圈等公开分享入口。
  */
 const SHARE_IMAGE = '/images/dishes/presets/fanqie-chaodan.jpg';
 
 function enableShareMenu() {
   if (!wx.showShareMenu) return;
   wx.showShareMenu({
-    withShareTicket: true,
-    menus: ['shareAppMessage', 'shareTimeline']
+    menus: ['shareAppMessage']
   });
 }
 
@@ -23,18 +22,8 @@ function appShare() {
 function familyShare(familyName, inviteCode) {
   if (!inviteCode) return appShare();
   return {
-    title: `来「${familyName || '我家'}」一起点菜`,
+    title: `邀请你加入「${familyName || '我家'}」私密家庭`,
     path: `/pages/index/index?inviteCode=${encodeURIComponent(inviteCode)}`,
-    imageUrl: SHARE_IMAGE
-  };
-}
-
-function timelineShare(familyName, inviteCode) {
-  return {
-    title: inviteCode
-      ? `来「${familyName || '我家'}」一起安排这一餐`
-      : '家里这一餐，一起安排',
-    query: inviteCode ? `inviteCode=${encodeURIComponent(inviteCode)}` : '',
     imageUrl: SHARE_IMAGE
   };
 }
@@ -42,6 +31,5 @@ function timelineShare(familyName, inviteCode) {
 module.exports = {
   enableShareMenu,
   appShare,
-  familyShare,
-  timelineShare
+  familyShare
 };

@@ -6,7 +6,7 @@
         <text class="header__name">{{familyName}}</text>
         <text class="header__switch">切换</text>
       </view>
-      <button class="header__share" open-type="share">分享给家人</button>
+      <button class="header__share" open-type="share">邀请家人加入</button>
     </view>
     <view class="header__meal">
       <text wx:if="{{meal}}" class="header__meal-label">{{mealLabel}}</text>

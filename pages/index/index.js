@@ -246,9 +246,5 @@ Page({
 
   onShareAppMessage() {
     return share.appShare();
-  },
-
-  onShareTimeline() {
-    return share.timelineShare('', '');
   }
 });
